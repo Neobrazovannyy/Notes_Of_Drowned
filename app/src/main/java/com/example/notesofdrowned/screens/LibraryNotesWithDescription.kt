@@ -43,21 +43,10 @@ import com.example.notesofdrowned.colorBgApp
 import com.example.notesofdrowned.colorBgNote
 import com.example.notesofdrowned.colorTextNote
 
+@Composable
 fun LibraryNotesWithDescription(modifier: Modifier = Modifier, listNodesObjectArea: MutableList<NodeObjectArea>) {
-
+    ArchiveNodes(modifier, listNodesObjectArea)
 }
-
-sealed class NodeObjectArea{
-    object BoxEmpty : NodeObjectArea()
-    data class BoxText(val text: String) : NodeObjectArea()
-    data class BoxImg(val imageBitmap: ImageBitmap) : NodeObjectArea()
-    data class BoxNode(val titleNode: String, val textNode: String, val colorBookmarker: Long) : NodeObjectArea()
-}
-
-data class CheckLineAndNodeObjectArea(
-    var checkLine: Short,
-    val listNodes: MutableList<NodeObjectArea>,
-)
 
 
 @Composable
@@ -75,6 +64,7 @@ fun ArchiveNodes(modifier: Modifier = Modifier, listNodesObjectArea: MutableList
         .background(Color(colorBgApp))
         .verticalScroll(rememberScrollState())
     ){
+
         // Window with notes
         Column(modifier=modifier.fillMaxSize(), verticalArrangement=Arrangement.Bottom) {
             for (itemNode in listNodesObjectArea)
@@ -132,6 +122,7 @@ fun ArchiveNodes(modifier: Modifier = Modifier, listNodesObjectArea: MutableList
                 }
             }
         }
+
         // The Button for adding a new node
         Column() { }
     }

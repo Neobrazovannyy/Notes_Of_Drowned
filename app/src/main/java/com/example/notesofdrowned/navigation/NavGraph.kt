@@ -19,7 +19,7 @@ fun NavGraph(modifier: Modifier = Modifier, listNodesObjectArea: MutableList<Nod
 //            LibraryNotesWithDescription(onNavigateToProfile = {
 //                navController.navigate("profile")
 //            })
-            LibraryNotesWithDescription()
+            LibraryNotesWithDescription(modifier, listNodesObjectArea)
         }
 //        composable("profile") {
 //            ProfileScreen()
