@@ -89,7 +89,7 @@ class MainActivity : ComponentActivity() { //Entry point to the UI process
                     topBar= {MyTopBar()},
                     bottomBar={MyBottomBar()},
                     modifier = Modifier.fillMaxSize(),
-                    content = { paddingValues -> SeedArchiveNodes(modifier = Modifier.padding(paddingValues))}
+                    content = { paddingValues -> SeedArchiveNotes(modifier = Modifier.padding(paddingValues))}
                 )
             }
         }
@@ -125,79 +125,50 @@ fun MyBottomBar(){
     }
 }
 
-sealed class NodeObjectArea{
-    object BoxEmpty : NodeObjectArea()
-    data class BoxText(val text: String) : NodeObjectArea()
-    data class BoxImg(val imageBitmap: ImageBitmap) : NodeObjectArea()
-    data class BoxNode(val titleNode: String, val textNode: String, val colorBookmarker: Long) : NodeObjectArea()
+sealed class NoteObjectArea{
+    object BoxEmpty : NoteObjectArea()
+    data class BoxText(val text: String) : NoteObjectArea()
+    data class BoxImg(val imageBitmap: ImageBitmap) : NoteObjectArea()
+    data class BoxNote(val titleNote: String, val textNote: String, val colorBookmarker: Long) : NoteObjectArea()
 }
 
-data class CheckLineAndNodeObjectArea(
-    var checkLine: Short,
-    val listNodes: MutableList<NodeObjectArea>,
-)
-
 @Composable
-fun SeedArchiveNodes(modifier: Modifier = Modifier){
+fun SeedArchiveNotes(modifier: Modifier = Modifier){ //?SeedArchiveNotes_LNWD
     // Если что это НЕ БУДЕТ РАБОТАТЬ когда добавлю б/д !!!!!!!!!!!!!!!!!!!!!!!!!!!
-    var checkAndAddNode: (CheckLineAndNodeObjectArea, NodeObjectArea)->Unit = { checkAndNodeObjectArea, nodesObjectArea ->
-        checkAndNodeObjectArea.checkLine++
-
-        if (checkAndNodeObjectArea.checkLine.toInt()==1)
-        {
-            checkAndNodeObjectArea.listNodes.add(nodesObjectArea)
-            checkAndNodeObjectArea.listNodes.add(NodeObjectArea.BoxEmpty)
-        }
-        else if(checkAndNodeObjectArea.checkLine.toInt()==2)
-        {
-            checkAndNodeObjectArea.listNodes.removeAt(checkAndNodeObjectArea.listNodes.lastIndex)
-            checkAndNodeObjectArea.listNodes.add(nodesObjectArea)
-            checkAndNodeObjectArea.checkLine=0
-        }
-        else{
-            checkAndNodeObjectArea.checkLine=0
-        }
-    }
-
-
-    var nodeObjectArea: CheckLineAndNodeObjectArea=CheckLineAndNodeObjectArea(
-        checkLine=0,
-        listNodes=mutableListOf()
-    )
-
-    checkAndAddNode(nodeObjectArea, NodeObjectArea.BoxNode(
+    var nodeObjectArea: MutableList<NoteObjectArea> = mutableListOf(NoteObjectArea.BoxNote(
         "Когнитивная система",
         "когнитивная структура — система познания (человека), сложившаяся в сознании в результате становления характера, воспитания, обучения, наблюдения и размышления об окружающем мире.",
         0xFF07575b
     ))
-    checkAndAddNode(nodeObjectArea, NodeObjectArea.BoxNode(
+
+    nodeObjectArea.add(NoteObjectArea.BoxNote(
         "Когнитивная система jjjjjjj",
         "когнитивная структура — система познания (человека), сложившаяся в сознании в результате становления характера, воспитания, обучения, наблюдения и размышления об окружающем мире.",
         0xFF07575b
     ))
-    checkAndAddNode(nodeObjectArea, NodeObjectArea.BoxImg(
+    nodeObjectArea.add(NoteObjectArea.BoxImg(
         ImageBitmap.imageResource(R.drawable.baba_nyura),
     ))
-    checkAndAddNode(nodeObjectArea, NodeObjectArea.BoxNode(
+    nodeObjectArea.add(NoteObjectArea.BoxNote(
         "Антифон",
         "Антифон (гр. «звучащий в ответ; откликающийся, вторящий») — рефрен в католическом богослужении",
         0xFFC4dfe6
     ))
-    checkAndAddNode(nodeObjectArea, NodeObjectArea.BoxNode(
+    nodeObjectArea.add(NoteObjectArea.BoxNote(
         "Профанация",
         "Профанация — искажение, опошление чего-либо. В отличие от святотатства — осквернения умышленного, профанация, как правило, представляет собой действие невольное.",
         0xFFdb7e58
     ))
-    checkAndAddNode(nodeObjectArea, NodeObjectArea.BoxText(
+    nodeObjectArea.add(NoteObjectArea.BoxText(
         "ЧИТАТЬ"
     ))
-    checkAndAddNode(nodeObjectArea, NodeObjectArea.BoxNode(
+    nodeObjectArea.add(NoteObjectArea.BoxNote(
         "Тремор",
         "Тремор (от лат. tremor, «дрожание») — непроизвольные быстрые ритмичные колебательные движения частей тела или всего тела.",
         0xFFdbae58
     ))
 
-    NavGraph(modifier, nodeObjectArea.listNodes)
+    NavGraph(modifier, nodeObjectArea)
 }
 
 // @Preview indicates a preview (showBackground - this creates a background).
@@ -205,6 +176,6 @@ fun SeedArchiveNodes(modifier: Modifier = Modifier){
 @Composable
 fun GreetingPreview() {
     NotesOfDrownedTheme {
-        SeedArchiveNodes(Modifier.fillMaxSize())
+        SeedArchiveNotes(Modifier.fillMaxSize())
     }
 }

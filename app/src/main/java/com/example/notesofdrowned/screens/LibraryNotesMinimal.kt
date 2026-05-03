@@ -1,4 +1,4 @@
-package com.example.notesofdrowned.screens.LNWD
+package com.example.notesofdrowned.screens.LNM
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -43,90 +42,127 @@ import com.example.notesofdrowned.colorBgApp
 import com.example.notesofdrowned.colorBgNote
 import com.example.notesofdrowned.colorTextNote
 
+
 @Composable
-fun LibraryNotesWithDescription(modifier: Modifier = Modifier, listNotesObjectArea: MutableList<NoteObjectArea>) {
+fun LibraryNotesMinimal(modifier: Modifier = Modifier, listNotesObjectArea: MutableList<NoteObjectArea>) {
     ArchiveNotes(modifier, listNotesObjectArea)
 }
-
 
 @Composable
 fun ArchiveNotes(modifier: Modifier = Modifier, listNotesObjectArea: MutableList<NoteObjectArea>) {
     /*--- For Logic---*/
-    var lineElement: Array<NoteObjectArea> = arrayOf(NoteObjectArea.BoxEmpty, NoteObjectArea.BoxEmpty)
     var countNoteInLine: Int=0
-    val maxNoteInLine: Short=2
-    /*--- For Design---*/
-    var modifierBoxPadding: Modifier = Modifier.height(90.dp).padding(5.dp)
-    var modifierBoxNotes: Modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(5.dp))
+    val maxNoteInLine:Int=4
+    val lineElement: Array<NoteObjectArea> = Array(size=maxNoteInLine){NoteObjectArea.BoxEmpty}
 
     Box(modifier=modifier
         .fillMaxSize()
         .background(Color(colorBgApp))
         .verticalScroll(rememberScrollState())
-    ){
+    ) {
 
         // Window with notes
-        Column(modifier=modifier.fillMaxSize(), verticalArrangement=Arrangement.Bottom) {
-            for (itemNote in listNotesObjectArea)
-            {
-                countNoteInLine++
-                lineElement[countNoteInLine-1]=itemNote
-                if(countNoteInLine >= maxNoteInLine)
-                {
-                    Row(modifier=Modifier.fillMaxWidth())
-                    {
-                        for(itemLineNote in lineElement){
-                            Box(modifier=modifierBoxPadding.weight(1f)){
-                                when(itemLineNote){
-                                    is NoteObjectArea.BoxEmpty -> {/*...*/}
-                                    is NoteObjectArea.BoxText -> {
-                                        Box(modifier=modifierBoxNotes){
-                                            Text(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .padding(top = 5.dp),
-                                                text = "${itemLineNote.text}",
-                                                style = TextStyle(
-                                                    fontSize = 25.sp,
-                                                    fontWeight = FontWeight.Light,
-                                                    fontFamily = FontFamily.Monospace,
-                                                    color = Color(colorTextNote),
-                                                    letterSpacing = 3.sp,
-                                                    textAlign = TextAlign.Center
-                                                )
-                                            )
-                                        }
-                                    }
-                                    is NoteObjectArea.BoxImg -> {
-                                        Box(modifier=modifierBoxNotes.verticalScroll(rememberScrollState())) {
-                                            Image(
-                                                bitmap = itemLineNote.imageBitmap,
-                                                contentDescription = null,
-                                                modifier = Modifier.fillMaxSize(),
-                                                alignment = Alignment.Center,
-                                                contentScale = ContentScale.Crop,
-                                            )
-                                        }
-                                    }
-                                    is NoteObjectArea.BoxNote -> {
-                                        Box(modifier=modifierBoxNotes){
-                                            BlockNoteInArchive(itemLineNote.titleNote, itemLineNote.textNote, itemLineNote.colorBookmarker)
-                                        }
-                                    }
-                                }
-                            }
+        Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
+            for (itemNote in listNotesObjectArea) {
+                if(itemNote is NoteObjectArea.BoxNote){
+                    countNoteInLine++
+                    lineElement[countNoteInLine - 1] = itemNote
 
-                        }
+                    if (countNoteInLine==maxNoteInLine) {
+                        DrowNotesInRow(lineElement)
+                        countNoteInLine=0
                     }
-                    countNoteInLine=0
                 }
+            }
+            if(countNoteInLine!=0){
+                for(i in countNoteInLine until maxNoteInLine){
+                    lineElement[i]=NoteObjectArea.BoxEmpty
+                }
+                DrowNotesInRow(lineElement)
             }
         }
 
         // The Button for adding a new node
         Column() { }
     }
+}
 
+@Composable
+fun DrowNotesInRow(lineElement: Array<NoteObjectArea>){
+    /*--- For Design---*/
+    val modifierBoxPadding: Modifier = Modifier.height(60.dp).padding(5.dp)
+    val modifierBoxNotes: Modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(5.dp))
+//    var weightNote: Float=1f
+
+    Row(modifier = Modifier.fillMaxWidth())
+    {
+        for (itemLineNote in lineElement)
+        {
+            Box(modifier = modifierBoxPadding.weight(1f)) {
+                when (itemLineNote) {
+                    is NoteObjectArea.BoxEmpty -> {
+                        /*...*/
+                    }
+                    is NoteObjectArea.BoxText -> {
+                        Box(modifier = modifierBoxNotes) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(top = 5.dp),
+                                text = "${itemLineNote.text}",
+                                style = TextStyle(
+                                    fontSize = 25.sp,
+                                    fontWeight = FontWeight.Light,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = Color(colorTextNote),
+                                    letterSpacing = 3.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        }
+                    }
+                    is NoteObjectArea.BoxImg -> {
+                        Box(
+                            modifier = modifierBoxNotes.verticalScroll(
+                                rememberScrollState()
+                            )
+                        ) {
+                            Image(
+                                bitmap = itemLineNote.imageBitmap,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                alignment = Alignment.Center,
+                                contentScale = ContentScale.Crop,
+                            )
+                        }
+                    }
+                    is NoteObjectArea.BoxNote -> {
+                        Box(modifier = modifierBoxNotes) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(top = 5.dp),
+                                text = "${itemLineNote.titleNote}",
+                                style = TextStyle(
+                                    fontSize = 25.sp,
+                                    fontWeight = FontWeight.Light,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = Color(colorTextNote),
+                                    letterSpacing = 3.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        }
+
+//                                        Box(modifier=modifierBoxNotes){
+//                                            BlockNoteInArchive(itemLineNote.titleNote, itemLineNote.textNote, itemLineNote.colorBookmarker)
+//                                        }
+                    }
+                }
+            }
+
+        }
+    }
 }
 
 @Composable
