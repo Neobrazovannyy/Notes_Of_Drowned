@@ -1,6 +1,7 @@
 package com.example.notesofdrowned
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -59,37 +60,59 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.input.pointer.pointerInput
-import com.example.notesofdrowned.navigation.NavGraph
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.notesofdrowned.screens.LNM.LibraryNotesMinimal
+import com.example.notesofdrowned.screens.WN.WriteNote
 
 /*
 "Views" — are the widgets that Android is built on and that are displayed on the screen (buttons, text, input fields).
 "Compose" — is a completely different engine. It doesn't have a "View" inside.
 "ComposeView" — is a "View" (widget) for Android that runs the entire "Compose" engine.
 */
-class MainActivity : ComponentActivity() { //Entry point to the UI process
+
+class MainActivity : ComponentActivity() {
     //Called by the system once at startup
     override fun onCreate(savedInstanceState: Bundle?) {
+        var nodeObjectArea: MutableList<NoteObjectArea> = mutableListOf(NoteObjectArea.BoxNote(
+            "Когнитивная система",
+            "когнитивная структура — система познания (человека), сложившаяся в сознании в результате становления характера, воспитания, обучения, наблюдения и размышления об окружающем мире.",
+            0xFF07575b
+        ))
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge() //Принудительно растягивает контент под системные бары
         setContent { //Here configure "Compose"
+            val navController = rememberNavController()
             // <NameProject>Theme — this "CompositionLocalProvider", it is an inject into context (Colors, Fonts, Shapes)
             NotesOfDrownedTheme {
-                // Scaffold - this container; fillMaxSize - takes up the entire screen.
-                /* Option 2 (Scaffold):
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    content = { innerPadding -> Greeting(...) }
-                )
-                //"Scaffold" calculates the fill size
-                // taking into account: "StatusBar", "TopAppBar", "NavigationBar"
-                // and passes the value to the lambda code
-                */
                 Scaffold(
                     topBar= {MyTopBar()},
-                    bottomBar={MyBottomBar()},
+                    bottomBar={MyBottomBar(navController)},
                     modifier = Modifier.fillMaxSize(),
-                    content = { paddingValues -> SeedArchiveNotes(modifier = Modifier.padding(paddingValues))}
+                    content = { paddingValues ->
+                        NavHost(
+                            navController = navController,
+                            startDestination = "LibraryNotesMinimal",
+                            modifier = Modifier.padding(paddingValues)
+                        ) {
+                            composable("LibraryNotesMinimal") {
+                                SeedArchiveNotes(
+                                    modifier = Modifier.fillMaxSize(),
+                                    nodeObjectArea = nodeObjectArea,
+                                    navController = navController
+                                )
+                            }
+                            composable("WriteNote") {
+                                WriteNote()
+                            }
+                        }
+                    }
                 )
             }
         }
@@ -116,12 +139,39 @@ fun MyTopBar() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyBottomBar(){
+fun MyBottomBar(navController: NavHostController){
+    val textButtonScreens: @Composable (String)-> Unit={nameButton->
+        Text(
+            text = "$nameButton",
+            style = TextStyle(
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Light,
+                fontFamily = FontFamily.Monospace,
+                color = Color(colorTextNote),
+                textAlign = TextAlign.Center,
+                platformStyle = PlatformTextStyle(
+                    includeFontPadding = false
+                )
+            ),
+        )
+    }
+
     BottomAppBar(
         contentColor=Color(colorTextNote),
         containerColor = Color(colorBgNote_1),
     ) {
-        Text("Нижний бар")
+        Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceAround){
+            Box(Modifier
+                .clickable(
+//                interactionSource = remember { MutableInteractionSource() },
+//                indication = null
+            ) {
+                    navController.navigate("LibraryNotesMinimal")
+            }
+            ){textButtonScreens("1")}
+            Box(){textButtonScreens("2")}
+            Box(){textButtonScreens("3")}
+        }
     }
 }
 
@@ -133,16 +183,11 @@ sealed class NoteObjectArea{
 }
 
 @Composable
-fun SeedArchiveNotes(modifier: Modifier = Modifier){ //?SeedArchiveNotes_LNWD
+fun SeedArchiveNotes( modifier: Modifier = Modifier, nodeObjectArea: MutableList<NoteObjectArea>, navController: NavHostController){
     // Если что это НЕ БУДЕТ РАБОТАТЬ когда добавлю б/д !!!!!!!!!!!!!!!!!!!!!!!!!!!
-    var nodeObjectArea: MutableList<NoteObjectArea> = mutableListOf(NoteObjectArea.BoxNote(
-        "Когнитивная система",
-        "когнитивная структура — система познания (человека), сложившаяся в сознании в результате становления характера, воспитания, обучения, наблюдения и размышления об окружающем мире.",
-        0xFF07575b
-    ))
 
     nodeObjectArea.add(NoteObjectArea.BoxNote(
-        "Когнитивная система jjjjjjj",
+        "Когнитивная система jjjjjjj 12345678",
         "когнитивная структура — система познания (человека), сложившаяся в сознании в результате становления характера, воспитания, обучения, наблюдения и размышления об окружающем мире.",
         0xFF07575b
     ))
@@ -168,14 +213,21 @@ fun SeedArchiveNotes(modifier: Modifier = Modifier){ //?SeedArchiveNotes_LNWD
         0xFFdbae58
     ))
 
-    NavGraph(modifier, nodeObjectArea)
+    Box(modifier=modifier){
+        LibraryNotesMinimal(nodeObjectArea, navController)
+    }
 }
 
 // @Preview indicates a preview (showBackground - this creates a background).
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NotesOfDrownedTheme {
-        SeedArchiveNotes(Modifier.fillMaxSize())
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    var nodeObjectArea: MutableList<NoteObjectArea> = mutableListOf(NoteObjectArea.BoxNote(
+//        "Когнитивная система",
+//        "когнитивная структура — система познания (человека), сложившаяся в сознании в результате становления характера, воспитания, обучения, наблюдения и размышления об окружающем мире.",
+//        0xFF07575b
+//    ))
+//    NotesOfDrownedTheme {
+//        SeedArchiveNotes(Modifier.fillMaxSize(), nodeObjectArea)
+//    }
+//}

@@ -1,8 +1,10 @@
 package com.example.notesofdrowned.screens.LNM
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,13 +32,16 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.notesofdrowned.NoteObjectArea
 import com.example.notesofdrowned.colorBgApp
 import com.example.notesofdrowned.colorBgNote
@@ -44,25 +49,25 @@ import com.example.notesofdrowned.colorTextNote
 
 
 @Composable
-fun LibraryNotesMinimal(modifier: Modifier = Modifier, listNotesObjectArea: MutableList<NoteObjectArea>) {
-    ArchiveNotes(modifier, listNotesObjectArea)
+fun LibraryNotesMinimal(listNotesObjectArea: MutableList<NoteObjectArea>, navController: NavHostController) {
+    ArchiveNotes(listNotesObjectArea, navController)
 }
 
 @Composable
-fun ArchiveNotes(modifier: Modifier = Modifier, listNotesObjectArea: MutableList<NoteObjectArea>) {
+fun ArchiveNotes(listNotesObjectArea: MutableList<NoteObjectArea>, navController: NavHostController) {
     /*--- For Logic---*/
     var countNoteInLine: Int=0
     val maxNoteInLine:Int=4
     val lineElement: Array<NoteObjectArea> = Array(size=maxNoteInLine){NoteObjectArea.BoxEmpty}
 
-    Box(modifier=modifier
+    //WINDOW with a notes
+    Box(modifier=Modifier
         .fillMaxSize()
         .background(Color(colorBgApp))
+        .padding(3.dp)
         .verticalScroll(rememberScrollState())
     ) {
-
-        // Window with notes
-        Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
+        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
             for (itemNote in listNotesObjectArea) {
                 if(itemNote is NoteObjectArea.BoxNote){
                     countNoteInLine++
@@ -82,174 +87,99 @@ fun ArchiveNotes(modifier: Modifier = Modifier, listNotesObjectArea: MutableList
             }
         }
 
-        // The Button for adding a new node
-        Column() { }
+    }
+
+    //WINDOW with the button for adding a new node
+    Box(modifier = Modifier.fillMaxSize()){
+        Box(modifier = Modifier.fillMaxSize().padding(20.dp), contentAlignment = Alignment.BottomEnd){
+            Box(modifier = Modifier
+                .width(60.dp)
+                .height(60.dp)
+                .clip(RoundedCornerShape(30.dp))
+                .background(Color(0XFF2A2A2B))
+                .clickable(){
+                    Log.d("Navigation", "Button clicked!") // Видно ли в логах?
+                    try {
+                        navController.navigate("WriteNote")
+                        Log.d("Navigation", "Navigate called successfully")
+                    } catch (e: Exception) {
+                        Log.e("Navigation", "Error: ${e.message}")
+                    }
+                },
+                contentAlignment = Alignment.Center
+            )
+            {
+                Text(
+                    text = "+",
+                    style = TextStyle(
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Light,
+                        fontFamily = FontFamily.Monospace,
+                        color = Color(colorTextNote),
+                        textAlign = TextAlign.Center,
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
+                    ),
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun DrowNotesInRow(lineElement: Array<NoteObjectArea>){
     /*--- For Design---*/
-    val modifierBoxPadding: Modifier = Modifier.height(60.dp).padding(5.dp)
+    val modifierBoxPadding: Modifier = Modifier.height(70.dp).padding(3.dp)
     val modifierBoxNotes: Modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(5.dp))
-//    var weightNote: Float=1f
 
     Row(modifier = Modifier.fillMaxWidth())
     {
         for (itemLineNote in lineElement)
         {
             Box(modifier = modifierBoxPadding.weight(1f)) {
-                when (itemLineNote) {
-                    is NoteObjectArea.BoxEmpty -> {
-                        /*...*/
-                    }
-                    is NoteObjectArea.BoxText -> {
-                        Box(modifier = modifierBoxNotes) {
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(top = 5.dp),
-                                text = "${itemLineNote.text}",
-                                style = TextStyle(
-                                    fontSize = 25.sp,
-                                    fontWeight = FontWeight.Light,
-                                    fontFamily = FontFamily.Monospace,
-                                    color = Color(colorTextNote),
-                                    letterSpacing = 3.sp,
-                                    textAlign = TextAlign.Center
-                                )
-                            )
-                        }
-                    }
-                    is NoteObjectArea.BoxImg -> {
-                        Box(
-                            modifier = modifierBoxNotes.verticalScroll(
-                                rememberScrollState()
-                            )
-                        ) {
-                            Image(
-                                bitmap = itemLineNote.imageBitmap,
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
-                                alignment = Alignment.Center,
-                                contentScale = ContentScale.Crop,
-                            )
-                        }
-                    }
-                    is NoteObjectArea.BoxNote -> {
-                        Box(modifier = modifierBoxNotes) {
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(top = 5.dp),
-                                text = "${itemLineNote.titleNote}",
-                                style = TextStyle(
-                                    fontSize = 25.sp,
-                                    fontWeight = FontWeight.Light,
-                                    fontFamily = FontFamily.Monospace,
-                                    color = Color(colorTextNote),
-                                    letterSpacing = 3.sp,
-                                    textAlign = TextAlign.Center
-                                )
-                            )
-                        }
-
-//                                        Box(modifier=modifierBoxNotes){
-//                                            BlockNoteInArchive(itemLineNote.titleNote, itemLineNote.textNote, itemLineNote.colorBookmarker)
-//                                        }
+                if(itemLineNote is NoteObjectArea.BoxNote){
+                    Box(modifier=modifierBoxNotes){
+                      BlockNoteInArchive(itemLineNote.titleNote, itemLineNote.textNote, itemLineNote.colorBookmarker)
                     }
                 }
             }
 
         }
     }
+
 }
 
 @Composable
 fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: Long){
-    val roundCornerBookmarker: RoundedCornerShape=RoundedCornerShape(0.dp,0.dp,10.dp, 10.dp)
-    val context = LocalContext.current //DELL
+    val roundCornerBookmarker: RoundedCornerShape=RoundedCornerShape(10.dp)
 
-
-    Box(modifier = Modifier.fillMaxSize().background(Color(colorBgNote)), contentAlignment = Alignment.BottomStart)
-    {
-        // BLOCK: Text
-        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start){
-            Row(){
+    Box(modifier = Modifier.fillMaxSize().background(Color(colorBgNote))) {
+        Row(verticalAlignment=Alignment.CenterVertically)
+        {
+            // UI Text
+            Box(modifier = Modifier.padding(5.dp).weight(1f)){
                 Text(
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .weight(2f),
+                    modifier = Modifier.fillMaxSize(),
                     text = "$titleNote",
-                    overflow = TextOverflow.Clip,
+                    overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Light,
                         fontFamily = FontFamily.Monospace,
                         color = Color(colorTextNote),
-                        letterSpacing = 3.sp,
                         textAlign = TextAlign.Start
                     )
                 )
-                Spacer(modifier = Modifier.width(35.dp))
             }
-            Text(
-                modifier = Modifier.padding(5.dp),
-                text = "$textNote",
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-//                overflow = TextOverflow.Clip, //cut
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Light,
-                    fontFamily = FontFamily.Monospace,
-                    color = Color(colorTextNote),
-                    textAlign = TextAlign.Start
-                )
-            )
-        }
-
-        // BLOCK: Bookmarker
-        Row(){
-            Spacer(modifier = Modifier.weight(1f))
-            Column() {
-                // UI: Bookmarker
-                Box(
-                    modifier = Modifier
-                        .padding(0.dp)
-                        .requiredSize(50.dp, 40.dp)
-                        .background(Color.Transparent)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    Toast.makeText(context, "Нажато!", Toast.LENGTH_SHORT).show()
-                                }
-                            )
-                        }
-                ){
-                    Box(modifier=Modifier.fillMaxSize(), contentAlignment=Alignment.TopCenter){
-                        Box(
-                            modifier = Modifier
-                                .width(20.dp)
-                                .height(25.dp)
-                                .background(
-                                    Brush.verticalGradient(
-                                        colors = listOf(
-                                            Color(colorBgNote),
-                                            Color(colorBookmarker)
-                                        ),
-                                        startY = -5f,
-                                        endY = 50f,
-                                        tileMode = TileMode.Clamp
-                                    ),
-                                    roundCornerBookmarker
-                                ),
-                            contentAlignment = Alignment.TopStart
-                        ){}
-                    }
-                }
-                Spacer(modifier = Modifier.fillMaxHeight())
-            }
+            // UI Bookmarker
+            Box(modifier = Modifier
+                .padding(start = 1.dp)
+                .width(3.dp)
+                .height(40.dp)
+                .background(color=Color(colorBookmarker), shape=roundCornerBookmarker),
+            ){}
         }
     }
 
