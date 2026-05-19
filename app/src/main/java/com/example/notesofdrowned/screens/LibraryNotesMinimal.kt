@@ -3,6 +3,7 @@ package com.example.notesofdrowned.screens.LNM
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +37,7 @@ import com.example.notesofdrowned.ListNoteObjects
 import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
 import com.example.notesofdrowned.ui.theme.BgApp
 import com.example.notesofdrowned.ui.theme.BgNote
+import com.example.notesofdrowned.ui.theme.BgNoteTransparent
 import com.example.notesofdrowned.ui.theme.TextNote
 
 
@@ -102,7 +106,10 @@ fun ArchiveNotes(listNoteObj: MutableList<ListNoteObjects>, navController: NavHo
                 .height(60.dp)
                 .clip(RoundedCornerShape(30.dp))
                 .background(Color(0XFF2A2A2B))
-                .clickable(){
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(color=BgNoteTransparent)
+                ){
                     Log.d("Navigation", "Button clicked!")
                     try {
                         navController.navigate("WriteNote")
