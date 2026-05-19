@@ -1,22 +1,16 @@
 package com.example.notesofdrowned.screens.LNM
 
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,50 +20,61 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.notesofdrowned.NoteObjectArea
-import com.example.notesofdrowned.colorBgApp
-import com.example.notesofdrowned.colorBgNote
-import com.example.notesofdrowned.colorTextNote
+import com.example.notesofdrowned.ListNoteObjects
+import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
+import com.example.notesofdrowned.ui.theme.BgApp
+import com.example.notesofdrowned.ui.theme.BgNote
+import com.example.notesofdrowned.ui.theme.TextNote
 
 
 @Composable
-fun LibraryNotesMinimal(listNotesObjectArea: MutableList<NoteObjectArea>, navController: NavHostController) {
-    ArchiveNotes(listNotesObjectArea, navController)
+fun LibraryNotesMinimal(listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController, workDBArchMini: WorkDBArchMini, isLoadListObjNotes: Boolean) {
+    if(isLoadListObjNotes){
+        listNoteObj.clear()
+
+        val listNotes: List<WorkDBArchMini.ListBDArchiveMini> = workDBArchMini.getAllNode()
+        listNotes.forEach{ noteArchMini->
+            listNoteObj.add(ListNoteObjects.BoxNote(
+                noteArchMini.title,
+                noteArchMini.description,
+                noteArchMini.colorBookmarkerId
+            ))
+        }
+
+        ArchiveNotes(listNoteObj, navController)
+    }
+    else{
+        ArchiveNotes(listNoteObj, navController)
+    }
 }
 
 @Composable
-fun ArchiveNotes(listNotesObjectArea: MutableList<NoteObjectArea>, navController: NavHostController) {
+fun ArchiveNotes(listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController) {
     /*--- For Logic---*/
     var countNoteInLine: Int=0
     val maxNoteInLine:Int=4
-    val lineElement: Array<NoteObjectArea> = Array(size=maxNoteInLine){NoteObjectArea.BoxEmpty}
+    val lineElement: Array<ListNoteObjects> = Array(size=maxNoteInLine){ListNoteObjects.BoxEmpty}
 
     //WINDOW with a notes
     Box(modifier=Modifier
         .fillMaxSize()
-        .background(Color(colorBgApp))
+        .background(BgApp)
         .padding(3.dp)
         .verticalScroll(rememberScrollState())
     ) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-            for (itemNote in listNotesObjectArea) {
-                if(itemNote is NoteObjectArea.BoxNote){
+            for (itemNote in listNoteObj) {
+                if(itemNote is ListNoteObjects.BoxNote){
                     countNoteInLine++
                     lineElement[countNoteInLine - 1] = itemNote
 
@@ -81,7 +86,7 @@ fun ArchiveNotes(listNotesObjectArea: MutableList<NoteObjectArea>, navController
             }
             if(countNoteInLine!=0){
                 for(i in countNoteInLine until maxNoteInLine){
-                    lineElement[i]=NoteObjectArea.BoxEmpty
+                    lineElement[i]=ListNoteObjects.BoxEmpty
                 }
                 DrowNotesInRow(lineElement)
             }
@@ -98,7 +103,7 @@ fun ArchiveNotes(listNotesObjectArea: MutableList<NoteObjectArea>, navController
                 .clip(RoundedCornerShape(30.dp))
                 .background(Color(0XFF2A2A2B))
                 .clickable(){
-                    Log.d("Navigation", "Button clicked!") // Видно ли в логах?
+                    Log.d("Navigation", "Button clicked!")
                     try {
                         navController.navigate("WriteNote")
                         Log.d("Navigation", "Navigate called successfully")
@@ -114,8 +119,8 @@ fun ArchiveNotes(listNotesObjectArea: MutableList<NoteObjectArea>, navController
                     style = TextStyle(
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Light,
-                        fontFamily = FontFamily.Monospace,
-                        color = Color(colorTextNote),
+                        fontFamily = FontFamily.SansSerif,
+                        color = TextNote,
                         textAlign = TextAlign.Center,
                         platformStyle = PlatformTextStyle(
                             includeFontPadding = false
@@ -129,7 +134,7 @@ fun ArchiveNotes(listNotesObjectArea: MutableList<NoteObjectArea>, navController
 }
 
 @Composable
-fun DrowNotesInRow(lineElement: Array<NoteObjectArea>){
+fun DrowNotesInRow(lineElement: Array<ListNoteObjects>){
     /*--- For Design---*/
     val modifierBoxPadding: Modifier = Modifier.height(70.dp).padding(3.dp)
     val modifierBoxNotes: Modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(5.dp))
@@ -139,7 +144,7 @@ fun DrowNotesInRow(lineElement: Array<NoteObjectArea>){
         for (itemLineNote in lineElement)
         {
             Box(modifier = modifierBoxPadding.weight(1f)) {
-                if(itemLineNote is NoteObjectArea.BoxNote){
+                if(itemLineNote is ListNoteObjects.BoxNote){
                     Box(modifier=modifierBoxNotes){
                       BlockNoteInArchive(itemLineNote.titleNote, itemLineNote.textNote, itemLineNote.colorBookmarker)
                     }
@@ -155,7 +160,7 @@ fun DrowNotesInRow(lineElement: Array<NoteObjectArea>){
 fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: Long){
     val roundCornerBookmarker: RoundedCornerShape=RoundedCornerShape(10.dp)
 
-    Box(modifier = Modifier.fillMaxSize().background(Color(colorBgNote))) {
+    Box(modifier = Modifier.fillMaxSize().background(BgNote)) {
         Row(verticalAlignment=Alignment.CenterVertically)
         {
             // UI Text
@@ -167,8 +172,8 @@ fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: Lon
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Light,
-                        fontFamily = FontFamily.Monospace,
-                        color = Color(colorTextNote),
+                        fontFamily = FontFamily.SansSerif,
+                        color = TextNote,
                         textAlign = TextAlign.Start
                     )
                 )

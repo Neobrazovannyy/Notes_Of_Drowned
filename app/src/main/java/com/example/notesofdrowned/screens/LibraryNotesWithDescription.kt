@@ -38,21 +38,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.notesofdrowned.NoteObjectArea
-import com.example.notesofdrowned.colorBgApp
-import com.example.notesofdrowned.colorBgNote
-import com.example.notesofdrowned.colorTextNote
+import com.example.notesofdrowned.ListNoteObjects
+import com.example.notesofdrowned.ui.theme.BgApp
+import com.example.notesofdrowned.ui.theme.BgNote
+import com.example.notesofdrowned.ui.theme.TextNote
 
 @Composable
-fun LibraryNotesWithDescription(modifier: Modifier = Modifier, listNotesObjectArea: MutableList<NoteObjectArea>) {
+fun LibraryNotesWithDescription(modifier: Modifier = Modifier, listNotesObjectArea: MutableList<ListNoteObjects>) {
     ArchiveNotes(modifier, listNotesObjectArea)
 }
 
 
 @Composable
-fun ArchiveNotes(modifier: Modifier = Modifier, listNotesObjectArea: MutableList<NoteObjectArea>) {
+fun ArchiveNotes(modifier: Modifier = Modifier, listNotesObjectArea: MutableList<ListNoteObjects>) {
     /*--- For Logic---*/
-    var lineElement: Array<NoteObjectArea> = arrayOf(NoteObjectArea.BoxEmpty, NoteObjectArea.BoxEmpty)
+    var lineElement: Array<ListNoteObjects> = arrayOf(ListNoteObjects.BoxEmpty, ListNoteObjects.BoxEmpty)
     var countNoteInLine: Int=0
     val maxNoteInLine: Short=2
     /*--- For Design---*/
@@ -61,7 +61,7 @@ fun ArchiveNotes(modifier: Modifier = Modifier, listNotesObjectArea: MutableList
 
     Box(modifier=modifier
         .fillMaxSize()
-        .background(Color(colorBgApp))
+        .background(BgApp)
         .verticalScroll(rememberScrollState())
     ){
 
@@ -78,37 +78,8 @@ fun ArchiveNotes(modifier: Modifier = Modifier, listNotesObjectArea: MutableList
                         for(itemLineNote in lineElement){
                             Box(modifier=modifierBoxPadding.weight(1f)){
                                 when(itemLineNote){
-                                    is NoteObjectArea.BoxEmpty -> {/*...*/}
-                                    is NoteObjectArea.BoxText -> {
-                                        Box(modifier=modifierBoxNotes){
-                                            Text(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .padding(top = 5.dp),
-                                                text = "${itemLineNote.text}",
-                                                style = TextStyle(
-                                                    fontSize = 25.sp,
-                                                    fontWeight = FontWeight.Light,
-                                                    fontFamily = FontFamily.Monospace,
-                                                    color = Color(colorTextNote),
-                                                    letterSpacing = 3.sp,
-                                                    textAlign = TextAlign.Center
-                                                )
-                                            )
-                                        }
-                                    }
-                                    is NoteObjectArea.BoxImg -> {
-                                        Box(modifier=modifierBoxNotes.verticalScroll(rememberScrollState())) {
-                                            Image(
-                                                bitmap = itemLineNote.imageBitmap,
-                                                contentDescription = null,
-                                                modifier = Modifier.fillMaxSize(),
-                                                alignment = Alignment.Center,
-                                                contentScale = ContentScale.Crop,
-                                            )
-                                        }
-                                    }
-                                    is NoteObjectArea.BoxNote -> {
+                                    is ListNoteObjects.BoxEmpty -> {}
+                                    is ListNoteObjects.BoxNote -> {
                                         Box(modifier=modifierBoxNotes){
                                             BlockNoteInArchive(itemLineNote.titleNote, itemLineNote.textNote, itemLineNote.colorBookmarker)
                                         }
@@ -135,7 +106,7 @@ fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: Lon
     val context = LocalContext.current //DELL
 
 
-    Box(modifier = Modifier.fillMaxSize().background(Color(colorBgNote)), contentAlignment = Alignment.BottomStart)
+    Box(modifier = Modifier.fillMaxSize().background(BgNote), contentAlignment = Alignment.BottomStart)
     {
         // BLOCK: Text
         Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start){
@@ -150,7 +121,7 @@ fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: Lon
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Light,
                         fontFamily = FontFamily.Monospace,
-                        color = Color(colorTextNote),
+                        color = TextNote,
                         letterSpacing = 3.sp,
                         textAlign = TextAlign.Start
                     )
@@ -167,7 +138,7 @@ fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: Lon
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     fontFamily = FontFamily.Monospace,
-                    color = Color(colorTextNote),
+                    color = TextNote,
                     textAlign = TextAlign.Start
                 )
             )
@@ -199,7 +170,7 @@ fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: Lon
                                 .background(
                                     Brush.verticalGradient(
                                         colors = listOf(
-                                            Color(colorBgNote),
+                                            BgNote,
                                             Color(colorBookmarker)
                                         ),
                                         startY = -5f,

@@ -1,117 +1,60 @@
 package com.example.notesofdrowned
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.notesofdrowned.ui.theme.NotesOfDrownedTheme
-import androidx.compose.material3.Button
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.platform.LocalContext
-import android.widget.Toast
-import androidx.collection.mutableObjectListOf
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.TopAppBar
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.notesofdrowned.screens.LNM.LibraryNotesMinimal
-import com.example.notesofdrowned.screens.WN.WriteNote
+import com.example.notesofdrowned.database.dbhelperarchmini.DBHelperArchMini
+import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
+import com.example.notesofdrowned.navigation.navigationcontroller.NavigationControllerHost
+import com.example.notesofdrowned.ui.theme.BgNote1
+import com.example.notesofdrowned.ui.theme.TextNote
 
-/*
-"Views" — are the widgets that Android is built on and that are displayed on the screen (buttons, text, input fields).
-"Compose" — is a completely different engine. It doesn't have a "View" inside.
-"ComposeView" — is a "View" (widget) for Android that runs the entire "Compose" engine.
-*/
+
+sealed class ListNoteObjects{
+    object BoxEmpty : ListNoteObjects()
+    data class BoxNote(val titleNote: String, val textNote: String, val colorBookmarker: Long) : ListNoteObjects()
+}
 
 class MainActivity : ComponentActivity() {
     //Called by the system once at startup
     override fun onCreate(savedInstanceState: Bundle?) {
-        var nodeObjectArea: MutableList<NoteObjectArea> = mutableListOf(NoteObjectArea.BoxNote(
-            "Когнитивная система",
-            "когнитивная структура — система познания (человека), сложившаяся в сознании в результате становления характера, воспитания, обучения, наблюдения и размышления об окружающем мире.",
-            0xFF07575b
-        ))
+        var listNoteObj: MutableList<ListNoteObjects> = mutableListOf()
 
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() //Принудительно растягивает контент под системные бары
-        setContent { //Here configure "Compose"
+        enableEdgeToEdge()
+        setContent {
             val navController = rememberNavController()
-            // <NameProject>Theme — this "CompositionLocalProvider", it is an inject into context (Colors, Fonts, Shapes)
             NotesOfDrownedTheme {
                 Scaffold(
                     topBar= {MyTopBar()},
                     bottomBar={MyBottomBar(navController)},
                     modifier = Modifier.fillMaxSize(),
                     content = { paddingValues ->
-                        NavHost(
-                            navController = navController,
-                            startDestination = "LibraryNotesMinimal",
-                            modifier = Modifier.padding(paddingValues)
-                        ) {
-                            composable("LibraryNotesMinimal") {
-                                SeedArchiveNotes(
-                                    modifier = Modifier.fillMaxSize(),
-                                    nodeObjectArea = nodeObjectArea,
-                                    navController = navController
-                                )
-                            }
-                            composable("WriteNote") {
-                                WriteNote()
-                            }
-                        }
+                        LoadingDataAndNavigation(Modifier.padding(paddingValues), listNoteObj, navController)
                     }
                 )
             }
@@ -119,19 +62,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/*----- Color -----*/
-public const val colorBgApp=0xFF141414
-public const val colorBgNote=0xFF464646
-public const val colorBgNote_1=0XFF2A2A2B
-public const val colorTextNote=0xFFEDEDED
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTopBar() {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
-            titleContentColor = Color(colorTextNote),
-            containerColor = Color(colorBgNote_1),
+            titleContentColor = TextNote,
+            containerColor = BgNote1,
         ),
         title = { Text("Заголовок") }
     )
@@ -146,8 +84,8 @@ fun MyBottomBar(navController: NavHostController){
             style = TextStyle(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Light,
-                fontFamily = FontFamily.Monospace,
-                color = Color(colorTextNote),
+                fontFamily = FontFamily.SansSerif,
+                color = TextNote,
                 textAlign = TextAlign.Center,
                 platformStyle = PlatformTextStyle(
                     includeFontPadding = false
@@ -157,8 +95,8 @@ fun MyBottomBar(navController: NavHostController){
     }
 
     BottomAppBar(
-        contentColor=Color(colorTextNote),
-        containerColor = Color(colorBgNote_1),
+        contentColor=TextNote,
+        containerColor = BgNote1,
     ) {
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceAround){
             Box(Modifier
@@ -175,59 +113,15 @@ fun MyBottomBar(navController: NavHostController){
     }
 }
 
-sealed class NoteObjectArea{
-    object BoxEmpty : NoteObjectArea()
-    data class BoxText(val text: String) : NoteObjectArea()
-    data class BoxImg(val imageBitmap: ImageBitmap) : NoteObjectArea()
-    data class BoxNote(val titleNote: String, val textNote: String, val colorBookmarker: Long) : NoteObjectArea()
-}
-
 @Composable
-fun SeedArchiveNotes( modifier: Modifier = Modifier, nodeObjectArea: MutableList<NoteObjectArea>, navController: NavHostController){
-    // Если что это НЕ БУДЕТ РАБОТАТЬ когда добавлю б/д !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    nodeObjectArea.add(NoteObjectArea.BoxNote(
-        "Когнитивная система jjjjjjj 12345678",
-        "когнитивная структура — система познания (человека), сложившаяся в сознании в результате становления характера, воспитания, обучения, наблюдения и размышления об окружающем мире.",
-        0xFF07575b
-    ))
-    nodeObjectArea.add(NoteObjectArea.BoxImg(
-        ImageBitmap.imageResource(R.drawable.baba_nyura),
-    ))
-    nodeObjectArea.add(NoteObjectArea.BoxNote(
-        "Антифон",
-        "Антифон (гр. «звучащий в ответ; откликающийся, вторящий») — рефрен в католическом богослужении",
-        0xFFC4dfe6
-    ))
-    nodeObjectArea.add(NoteObjectArea.BoxNote(
-        "Профанация",
-        "Профанация — искажение, опошление чего-либо. В отличие от святотатства — осквернения умышленного, профанация, как правило, представляет собой действие невольное.",
-        0xFFdb7e58
-    ))
-    nodeObjectArea.add(NoteObjectArea.BoxText(
-        "ЧИТАТЬ"
-    ))
-    nodeObjectArea.add(NoteObjectArea.BoxNote(
-        "Тремор",
-        "Тремор (от лат. tremor, «дрожание») — непроизвольные быстрые ритмичные колебательные движения частей тела или всего тела.",
-        0xFFdbae58
-    ))
+fun LoadingDataAndNavigation(modifier: Modifier, listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController){
+    val context = LocalContext.current
+    val workDBArchMini = remember {
+        val dbHelper= DBHelperArchMini(context)
+        WorkDBArchMini(dbHelper)
+    }
 
     Box(modifier=modifier){
-        LibraryNotesMinimal(nodeObjectArea, navController)
+        NavigationControllerHost(navController, listNoteObj, workDBArchMini)
     }
 }
-
-// @Preview indicates a preview (showBackground - this creates a background).
-//@Preview(showBackground = true)
-//@Composable
-//fun GreetingPreview() {
-//    var nodeObjectArea: MutableList<NoteObjectArea> = mutableListOf(NoteObjectArea.BoxNote(
-//        "Когнитивная система",
-//        "когнитивная структура — система познания (человека), сложившаяся в сознании в результате становления характера, воспитания, обучения, наблюдения и размышления об окружающем мире.",
-//        0xFF07575b
-//    ))
-//    NotesOfDrownedTheme {
-//        SeedArchiveNotes(Modifier.fillMaxSize(), nodeObjectArea)
-//    }
-//}
