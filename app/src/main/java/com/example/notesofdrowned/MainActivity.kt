@@ -40,7 +40,7 @@ import com.example.notesofdrowned.ui.theme.TextNote
 
 sealed class ListNoteObjects{
     object BoxEmpty : ListNoteObjects()
-    data class BoxNote(val titleNote: String, val textNote: String, val colorBookmarker: Long) : ListNoteObjects()
+    data class BoxNote(val titleNote: String, val textNote: String, val colorBookmarker: String) : ListNoteObjects()
 }
 
 class MainActivity : ComponentActivity() {

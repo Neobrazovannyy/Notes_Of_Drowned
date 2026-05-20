@@ -44,26 +44,22 @@ import com.example.notesofdrowned.ui.theme.BgNoteTransparent
 import com.example.notesofdrowned.ui.theme.TextNote
 
 
-val ComposLocalDB = compositionLocalOf<WorkDBArchMini> { error("No MyData provided") }
-
 @Composable
 fun LibraryNotesMinimal(listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController, workDBArchMini: WorkDBArchMini, isLoadListObjNotes: Boolean) {
     if(isLoadListObjNotes){
         listNoteObj.clear()
 
-        val listNotes: List<WorkDBArchMini.TableArchiveMini> = workDBArchMini.getAllNode()
+        val listNotes: List<WorkDBArchMini.TableArchiveMiniWithColor> = workDBArchMini.getAllNodeWithColor()
         listNotes.forEach{ noteArchMini->
             listNoteObj.add(ListNoteObjects.BoxNote(
                 noteArchMini.title,
                 noteArchMini.description,
-                noteArchMini.colorBookmarkerId
+                noteArchMini.colorBookmarker
             ))
         }
     }
 
-    CompositionLocalProvider(ComposLocalDB provides workDBArchMini){
-        ArchiveNotes(listNoteObj, navController)
-    }
+    ArchiveNotes(listNoteObj, navController)
 }
 
 @Composable
@@ -168,11 +164,8 @@ fun DrowNotesInRow(lineElement: Array<ListNoteObjects>){
 }
 
 @Composable
-fun BlockNoteInArchive(titleNote: String, textNote: String, idBookmarker: Long){
+fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: String){
     val roundCornerBookmarker=RoundedCornerShape(10.dp)
-    val workDBArchMini = ComposLocalDB.current
-    val colorBookmarker: String = workDBArchMini.getColorBookmarker(idBookmarker) ?: "464646"
-
 
     Box(modifier = Modifier.fillMaxSize().background(BgNote)) {
         Row(verticalAlignment=Alignment.CenterVertically)

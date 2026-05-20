@@ -152,8 +152,18 @@ fun WriteNote(navController: NavHostController, workDBArchMini: WorkDBArchMini) 
                             interactionSource = remember { MutableInteractionSource() },
                             indication = ripple(color=BgNoteTransparent)
                         ){
-                            //! ENTER DATA IN BD
-                            navController.navigate("LibraryNotesMinimal_LoadNotes")
+                            if(textInTitleField.value != "" && textInDirectionField.value != ""){
+                                workDBArchMini.insertNoteWithColor(textInTitleField.value, textInDirectionField.value, colorBookmarker.value)
+                                navController.navigate("LibraryNotesMinimal_LoadNotes")
+                            }
+                            else{
+                                if(textInTitleField.value==""){
+                                    textInTitleField.value="Need a text!!!"
+                                }
+                                if(textInDirectionField.value==""){
+                                    textInDirectionField.value="Need a text!!!"
+                                }
+                            }
                          },
                         contentAlignment = Alignment.Center
                     ){
@@ -164,9 +174,6 @@ fun WriteNote(navController: NavHostController, workDBArchMini: WorkDBArchMini) 
                                 fontFamily = FontFamily.Monospace,
                                 color = TextNote,
                                 textAlign = TextAlign.Center,
-                                platformStyle = PlatformTextStyle(
-                                    includeFontPadding = false
-                                )
                             ),
                             modifier = Modifier.align(Alignment.Center)
                         )
@@ -308,7 +315,7 @@ fun WindowAddNewColor(showWindowAddColor: MutableState<Boolean>, showWindowForSe
                         BasicTextField(
                             value = textNewNameColor,
                             onValueChange = { newText->
-                                textNewNameColor=newText
+                                textNewNameColor=newText.trim().trimIndent()
                             },
                             modifier = Modifier
                                 .width(130.dp)
@@ -345,7 +352,7 @@ fun WindowAddNewColor(showWindowAddColor: MutableState<Boolean>, showWindowForSe
                         BasicTextField(
                             value = textNewColor,
                             onValueChange = { newText->
-                                textNewColor=newText
+                                textNewColor=newText.trim().trimIndent()
                                 selectNewColor = try {
                                     correctColor=true
                                     Color(0xFF000000 or newText.toLong(16))
@@ -450,7 +457,7 @@ fun InputFieldWithSubscript(modifier: Modifier, alignmentText: Alignment, textIn
     BasicTextField(
         value = textInField.value,
         onValueChange = { newTextInField ->
-            textInField.value=newTextInField
+            textInField.value=newTextInField.trim().trimIndent()
         },
         modifier = modifier.fillMaxWidth(),
         textStyle = TextStyle(

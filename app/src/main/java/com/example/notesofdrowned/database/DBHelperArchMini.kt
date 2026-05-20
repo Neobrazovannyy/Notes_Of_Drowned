@@ -32,6 +32,11 @@ class DBHelperArchMini(context: Context) : SQLiteOpenHelper(context, DATABASE_NA
         """)
 
         db.execSQL("""
+            INSERT INTO "$TABLE_CHILDREN" ($COLUMN_CHILDREN_NAME, $COLUMN_CHILDREN_COLOR) 
+            VALUES ('default', '464646')
+        """.trimIndent())
+
+        db.execSQL("""
             CREATE TABLE IF NOT EXISTS $TABLE_PARENT(
                 $COLUMN_PARENT_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 $COLUMN_PARENT_TITLE TEXT NOT NULL UNIQUE,
