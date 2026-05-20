@@ -20,8 +20,7 @@ fun NavigationControllerHost(navController: NavHostController, listNoteObj: Muta
             LibraryNotesMinimal(listNoteObj, navController, workDBArchMini, false)
         }
         composable("WriteNote") {
-//            WriteNote(navController, workDBArchMini)
-            WriteNote()
+            WriteNote(navController, workDBArchMini)
         }
     }
 

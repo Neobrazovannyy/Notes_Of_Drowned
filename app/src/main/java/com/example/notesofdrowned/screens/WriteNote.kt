@@ -1,6 +1,7 @@
 package com.example.notesofdrowned.screens.WN
 
 import android.graphics.Paint.Align
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -9,6 +10,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +30,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +49,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
 import com.example.notesofdrowned.ui.theme.BgApp
 import com.example.notesofdrowned.ui.theme.BgNote
 import com.example.notesofdrowned.ui.theme.BgNote1
@@ -55,14 +60,17 @@ import com.example.notesofdrowned.ui.theme.TextNote1
 
 
 @Composable
-fun WriteNote(/* navController: NavHostController, workDBArchMini: WorkDBArchMini */) {
-//    val textInTitleField by remember { mutableStateOf("Миндалевидное тело (амигдала)") }
-//    val textInDirectionField by remember { mutableStateOf("Область мозга миндалевидной формы, находящаяся в белом веществе височной доли полушария под скорлупой, примерно на 1,5—2,0 см сзади от височного полюса. В мозге два миндалевидных тела — по одному в каждом полушарии. Миндалевидное тело играет ключевую роль в формировании эмоций, в частности страха. ") }
-    var textInTitleField by remember {mutableStateOf("")}
-    var textInDirectionField by remember {mutableStateOf("")}
-    val fontSizeTitle = 28.sp
-    val fontSizeDirection = 16.sp
-    var showWindowForSelectBookmarker by remember {mutableStateOf(false)}
+fun WriteNote(navController: NavHostController, workDBArchMini: WorkDBArchMini) {
+    // Value for DB
+    var textInTitleField = remember {mutableStateOf("")}
+    var textInDirectionField = remember {mutableStateOf("")}
+    var colorBookmarker = remember {mutableStateOf<String>("464646")}
+    // Value for style
+    val fontSizeTitle = 28
+    val fontSizeDirection = 16
+    // Flags
+    var showWindowForSelectBookmarker = remember {mutableStateOf(false)}
+
 
     Column(modifier=Modifier
         .fillMaxSize()
@@ -81,31 +89,12 @@ fun WriteNote(/* navController: NavHostController, workDBArchMini: WorkDBArchMin
             Row(){
                 /*----- Box: input filed for "WORD" -----*/
                 Box(modifier = Modifier.weight(1f).height(67.dp), contentAlignment = Alignment.CenterStart){
-                    BasicTextField(
-                        value = textInTitleField,
-                        onValueChange = {textInTitleField=it},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp, 0.dp),
-                        textStyle = TextStyle(
-                            fontFamily = FontFamily.SansSerif,
-                            color = TextNote1,
-                            fontSize = fontSizeTitle,
-                        ),
-                        cursorBrush= SolidColor(TextNote1),
-                        decorationBox = { innerTextField ->
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart)
-                            {
-                                if (textInTitleField.isEmpty()) {
-                                    Text(
-                                        text = "Word...",
-                                        color = Color.Gray,
-                                        fontSize = fontSizeTitle,
-                                    )
-                                }
-                                innerTextField()
-                            }
-                        }
+                    InputFieldWithSubscript(
+                        Modifier.padding(10.dp, 0.dp),
+                        Alignment.CenterStart,
+                        textInTitleField,
+                        fontSizeTitle,
+                        "Word..."
                     )
                 }
                 /*----- Box: UI bookmarker -----*/
@@ -116,14 +105,14 @@ fun WriteNote(/* navController: NavHostController, workDBArchMini: WorkDBArchMin
                         interactionSource = remember { MutableInteractionSource() },
                         indication = ripple(color=BgNoteTransparent)
                     ) {
-                        showWindowForSelectBookmarker=true
+                        showWindowForSelectBookmarker.value=true
                     },
                     contentAlignment = Alignment.CenterEnd
                 ){
                     Box(modifier=Modifier
                         .fillMaxHeight()
                         .width(15.dp)
-                        .background(BgNote, RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp)),
+                        .background(Color(0xFF000000 or colorBookmarker.value.toLong(16)), RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp)),
                     ){}
                 }
             }
@@ -145,30 +134,12 @@ fun WriteNote(/* navController: NavHostController, workDBArchMini: WorkDBArchMin
 
         /*========== "Definition" input filed ==========*/
         Box(modifier=Modifier.weight(1f).fillMaxSize()){
-            BasicTextField(
-                value = textInDirectionField,
-                onValueChange = {textInDirectionField=it},
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(10.dp),
-                textStyle = TextStyle(
-                    fontFamily = FontFamily.SansSerif,
-                    color = TextNote1,
-                    fontSize = fontSizeDirection,
-                ),
-                cursorBrush=SolidColor(TextNote1),
-                decorationBox = { innerTextField ->
-                    Box {
-                        if (textInDirectionField.isEmpty()) {
-                            Text(
-                                text = "Definition, description of the word...",
-                                color = Color.Gray,
-                                fontSize = fontSizeDirection
-                            )
-                        }
-                        innerTextField()
-                    }
-                }
+            InputFieldWithSubscript(
+                Modifier.padding(10.dp),
+                Alignment.TopStart,
+                textInDirectionField,
+                fontSizeDirection,
+                "Definition, description of the word..."
             )
             Box(modifier = Modifier.fillMaxSize()){
                 Box(modifier = Modifier.fillMaxSize().padding(20.dp), contentAlignment = Alignment.BottomEnd){
@@ -180,7 +151,10 @@ fun WriteNote(/* navController: NavHostController, workDBArchMini: WorkDBArchMin
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = ripple(color=BgNoteTransparent)
-                        ){/* navController.navigate("LibraryNotesMinimal_LoadNotes") */},
+                        ){
+                            //! ENTER DATA IN BD
+                            navController.navigate("LibraryNotesMinimal_LoadNotes")
+                         },
                         contentAlignment = Alignment.Center
                     ){
                         Text(
@@ -203,15 +177,17 @@ fun WriteNote(/* navController: NavHostController, workDBArchMini: WorkDBArchMin
 
     }
 
-    if(showWindowForSelectBookmarker){
-        WindowSelectBookmarker()
+    if(showWindowForSelectBookmarker.value){
+        WindowSelectBookmarker(showWindowForSelectBookmarker, colorBookmarker, workDBArchMini)
     }
 
 }
 
 @Composable
-fun WindowSelectBookmarker(){
-    var showAddColor by remember {mutableStateOf(false)}
+fun WindowSelectBookmarker(showWindowForSelectBookmarker: MutableState<Boolean>, colorBookmarkerForNote: MutableState<String>, workDBArchMini: WorkDBArchMini){
+    var showWindowAddColor = remember {mutableStateOf<Boolean>(false)}
+    var listBookmarkerColors: List<WorkDBArchMini.TableColorBookmarker> = workDBArchMini.getAllColor()
+
 
     Box(modifier=Modifier
         .fillMaxSize()
@@ -219,7 +195,7 @@ fun WindowSelectBookmarker(){
         .clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = ripple(color=BgNoteTransparent)
-        ){showAddColor=false},
+        ){showWindowForSelectBookmarker.value=false},
         contentAlignment = Alignment.Center
     ){
         Box(modifier=Modifier
@@ -237,7 +213,7 @@ fun WindowSelectBookmarker(){
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = ripple(color=BgNoteTransparent)
-                    ){showAddColor=true}
+                    ){showWindowAddColor.value=true}
                 ){
                     Text(
                         text = "Add new color for bookmarker",
@@ -258,19 +234,22 @@ fun WindowSelectBookmarker(){
                     contentAlignment = Alignment.Center
                 ){
                     Column {
-                        repeat(10) { index ->
+                        listBookmarkerColors.forEach{ itemDBBookmarker ->
                             Text(
-                                text = "Элемент ${index + 1}",
+                                text = "  ${itemDBBookmarker.nameColor}",
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(15.dp, 10.dp)
                                     .clickable(
                                         interactionSource = remember { MutableInteractionSource() },
                                         indication = ripple(color=BgNoteTransparent)
-                                    ) { /* действие */ }
+                                    ) {
+                                        colorBookmarkerForNote.value=itemDBBookmarker.color
+                                        showWindowForSelectBookmarker.value=false
+                                    }
                                     .drawBehind {
                                         drawLine(
-                                            color = TextNote1,
+                                            color = Color(0xFF000000 or itemDBBookmarker.color.toLong(16)),
                                             start = Offset(0f, size.height),
                                             end = Offset(size.width, size.height),
                                             strokeWidth = 2.dp.toPx()
@@ -289,44 +268,96 @@ fun WindowSelectBookmarker(){
         }
     }
 
-    if(!showAddColor){
-        var textNewColor by remember {mutableStateOf("")}
-        var selectNewColor by remember {mutableStateOf(Color(0xFFC1C1C1))}
+    if(showWindowAddColor.value){
+        WindowAddNewColor(showWindowAddColor, showWindowForSelectBookmarker, colorBookmarkerForNote, workDBArchMini)
+    }
 
-        Box(modifier=Modifier
-            .fillMaxSize()
-            .background(BgNoteTransparent)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(color=BgNoteTransparent)
-            ){showAddColor=!showAddColor},
-            contentAlignment = Alignment.Center
+}
+
+@Composable
+fun WindowAddNewColor(showWindowAddColor: MutableState<Boolean>, showWindowForSelectBookmarker: MutableState<Boolean>,  colorBookmarkerForNote: MutableState<String>, workDBArchMini: WorkDBArchMini){
+    //----- Text in input field
+    var textNewNameColor by remember {mutableStateOf("")}
+    var textNewColor by remember {mutableStateOf("")}
+    //----- Value for value in database
+    // textNewNameColor
+    var selectNewColor by remember {mutableStateOf(Color(0xFFC1C1C1))}
+    //----- Flags
+    var correctColor by remember {mutableStateOf(false)}
+    var msgCorrectColor by remember {mutableStateOf(false)}
+
+
+    Box(modifier=Modifier
+        .fillMaxSize()
+        .background(BgNoteTransparent)
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = ripple(color=BgNoteTransparent)
+        ){showWindowAddColor.value=false},
+        contentAlignment = Alignment.Center
+    ) {
+        Box(modifier = Modifier
+            .width(300.dp)
+            .height(250.dp)
+            .background(BgNote, RoundedCornerShape(5.dp))
+            .border(1.dp, BgNoteTransparent, RoundedCornerShape(5.dp)),
         ) {
-            Box(modifier = Modifier
-                    .width(300.dp)
-                    .height(250.dp)
-                    .background(BgNote, RoundedCornerShape(5.dp))
-                    .border(1.dp, BgNoteTransparent, RoundedCornerShape(5.dp)),
-            ) {
-                Column(modifier = Modifier.fillMaxSize()){
-                    Box(modifier=Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                        contentAlignment = Alignment.Center,
-                    ){
+            Column(modifier = Modifier.fillMaxSize()){
+                Box(modifier=Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center,){
+                    Column(){
+                        BasicTextField(
+                            value = textNewNameColor,
+                            onValueChange = { newText->
+                                textNewNameColor=newText
+                            },
+                            modifier = Modifier
+                                .width(130.dp)
+                                .padding(10.dp)
+                                .horizontalScroll(rememberScrollState())
+                                .drawBehind {
+                                    drawLine(
+                                        color = selectNewColor,
+                                        start = Offset(0f, size.height),
+                                        end = Offset(size.width, size.height),
+                                        strokeWidth = 2.dp.toPx()
+                                    )
+                                },
+                            textStyle = TextStyle(
+                                fontFamily = FontFamily.SansSerif,
+                                color = TextNote1,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            ),
+                            cursorBrush=SolidColor(TextNote1),
+                            decorationBox = { innerTextField ->
+                                if (textNewNameColor.isEmpty()) {
+                                    Text(
+                                        text = "NAME COLOR",
+                                        color = Color.Gray,
+                                        fontSize = 16.sp,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                                innerTextField()
+                            },
+                            singleLine = true
+                        )
                         BasicTextField(
                             value = textNewColor,
                             onValueChange = { newText->
                                 textNewColor=newText
                                 selectNewColor = try {
+                                    correctColor=true
                                     Color(0xFF000000 or newText.toLong(16))
                                 } catch (e: NumberFormatException) {
-                                    Color(0xFFC1C1C1)
+                                    correctColor=false
+                                    selectNewColor
                                 }
                             },
                             modifier = Modifier
-                                .width(120.dp)
+                                .width(130.dp)
                                 .padding(10.dp)
+                                .horizontalScroll(rememberScrollState())
                                 .drawBehind {
                                     drawLine(
                                         color = selectNewColor,
@@ -352,40 +383,94 @@ fun WindowSelectBookmarker(){
                                     )
                                 }
                                 innerTextField()
-                            }
-                        )
-                    }
-                    Box(modifier=Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .background(BgNote1, RoundedCornerShape(0.dp,0.dp,5.dp,5.dp))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(color=BgNoteTransparent)
-                        ){}
-                    ){
-                        Text(
-                            text = "ADD COLOR",
-                            style = TextStyle(
-                                fontSize = 30.sp,
-                                fontFamily = FontFamily.SansSerif,
-                                color = TextNote1,
-                                textAlign = TextAlign.Center,
-                            ),
-                            modifier = Modifier.align(Alignment.Center)
+                            },
+                            singleLine = true
                         )
                     }
                 }
+                Box(modifier=Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(BgNote1, RoundedCornerShape(0.dp,0.dp,5.dp,5.dp))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(color=BgNoteTransparent)
+                    ){
+                        if(correctColor){
+                            showWindowAddColor.value=false
+                            showWindowForSelectBookmarker.value=false
+                            colorBookmarkerForNote.value=textNewColor
+                            workDBArchMini.insertBookmarker(textNewNameColor, textNewColor)
+                        }
+                        else{
+                            msgCorrectColor=true
+                        }
+                    }
+                ){
+                    Text(
+                        text = "ADD COLOR",
+                        style = TextStyle(
+                            fontSize = 30.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            color = TextNote1,
+                            textAlign = TextAlign.Center,
+                        ),
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
             }
+
+            if(msgCorrectColor){
+                Box(modifier=Modifier
+                    .fillMaxWidth()
+                    .padding(top=10.dp)
+                )
+                {
+                    Text(
+                        text = "incorrect color",
+                        style = TextStyle(
+                            fontSize = 30.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            color = TextNote1,
+                            textAlign = TextAlign.Center,
+                        ),
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+
         }
     }
-
 }
 
 
-@Preview(showBackground = true)
+/*==================== parts of the constructor ====================*/
 @Composable
-fun GreetingPreview() {
-//    WriteNote()
-    WindowSelectBookmarker()
+fun InputFieldWithSubscript(modifier: Modifier, alignmentText: Alignment, textInField: MutableState<String>, fontSizeText: Int, textSubscript: String){
+    BasicTextField(
+        value = textInField.value,
+        onValueChange = { newTextInField ->
+            textInField.value=newTextInField
+        },
+        modifier = modifier.fillMaxWidth(),
+        textStyle = TextStyle(
+            fontFamily = FontFamily.SansSerif,
+            color = TextNote1,
+            fontSize = fontSizeText.sp,
+        ),
+        cursorBrush= SolidColor(TextNote1),
+        decorationBox = { innerTextField ->
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = alignmentText)
+            {
+                if (textInField.value.isEmpty()) {
+                    Text(
+                        text = "$textSubscript",
+                        color = Color.Gray,
+                        fontSize = fontSizeText.sp,
+                    )
+                }
+                innerTextField()
+            }
+        }
+    )
 }

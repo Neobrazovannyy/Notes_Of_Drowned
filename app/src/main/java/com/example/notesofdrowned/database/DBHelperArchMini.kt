@@ -27,14 +27,14 @@ class DBHelperArchMini(context: Context) : SQLiteOpenHelper(context, DATABASE_NA
             CREATE TABLE IF NOT EXISTS $TABLE_CHILDREN(
                 $COLUMN_CHILDREN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 $COLUMN_CHILDREN_NAME TEXT,
-                $COLUMN_CHILDREN_COLOR TEXT NOT NULL
+                $COLUMN_CHILDREN_COLOR TEXT NOT NULL UNIQUE
             )
         """)
 
         db.execSQL("""
             CREATE TABLE IF NOT EXISTS $TABLE_PARENT(
                 $COLUMN_PARENT_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $COLUMN_PARENT_TITLE TEXT NOT NULL,
+                $COLUMN_PARENT_TITLE TEXT NOT NULL UNIQUE,
                 $COLUMN_PARENT_DESCRIPTION TEXT,
                 $COLUMN_PARENT_FOREIGN_KEY INTEGER,
                 FOREIGN KEY ($COLUMN_PARENT_FOREIGN_KEY)  REFERENCES $TABLE_CHILDREN (id)
@@ -56,7 +56,7 @@ class DBHelperArchMini(context: Context) : SQLiteOpenHelper(context, DATABASE_NA
     }
 
     override fun onConfigure(db: SQLiteDatabase) {
-        super.onConfigure(db)  // правильно
+        super.onConfigure(db)
         db.setForeignKeyConstraintsEnabled(true)
         db.setLocale(Locale("ru"))
     }

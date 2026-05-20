@@ -19,7 +19,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,12 +44,14 @@ import com.example.notesofdrowned.ui.theme.BgNoteTransparent
 import com.example.notesofdrowned.ui.theme.TextNote
 
 
+val ComposLocalDB = compositionLocalOf<WorkDBArchMini> { error("No MyData provided") }
+
 @Composable
 fun LibraryNotesMinimal(listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController, workDBArchMini: WorkDBArchMini, isLoadListObjNotes: Boolean) {
     if(isLoadListObjNotes){
         listNoteObj.clear()
 
-        val listNotes: List<WorkDBArchMini.ListBDArchiveMini> = workDBArchMini.getAllNode()
+        val listNotes: List<WorkDBArchMini.TableArchiveMini> = workDBArchMini.getAllNode()
         listNotes.forEach{ noteArchMini->
             listNoteObj.add(ListNoteObjects.BoxNote(
                 noteArchMini.title,
@@ -54,10 +59,9 @@ fun LibraryNotesMinimal(listNoteObj: MutableList<ListNoteObjects>, navController
                 noteArchMini.colorBookmarkerId
             ))
         }
-
-        ArchiveNotes(listNoteObj, navController)
     }
-    else{
+
+    CompositionLocalProvider(ComposLocalDB provides workDBArchMini){
         ArchiveNotes(listNoteObj, navController)
     }
 }
@@ -164,8 +168,11 @@ fun DrowNotesInRow(lineElement: Array<ListNoteObjects>){
 }
 
 @Composable
-fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: Long){
-    val roundCornerBookmarker: RoundedCornerShape=RoundedCornerShape(10.dp)
+fun BlockNoteInArchive(titleNote: String, textNote: String, idBookmarker: Long){
+    val roundCornerBookmarker=RoundedCornerShape(10.dp)
+    val workDBArchMini = ComposLocalDB.current
+    val colorBookmarker: String = workDBArchMini.getColorBookmarker(idBookmarker) ?: "464646"
+
 
     Box(modifier = Modifier.fillMaxSize().background(BgNote)) {
         Row(verticalAlignment=Alignment.CenterVertically)
@@ -190,7 +197,7 @@ fun BlockNoteInArchive(titleNote: String, textNote: String, colorBookmarker: Lon
                 .padding(start = 1.dp)
                 .width(3.dp)
                 .height(40.dp)
-                .background(color=Color(colorBookmarker), shape=roundCornerBookmarker),
+                .background(color=Color(0xFF000000 or colorBookmarker.toLong(16)), shape=roundCornerBookmarker),
             ){}
         }
     }

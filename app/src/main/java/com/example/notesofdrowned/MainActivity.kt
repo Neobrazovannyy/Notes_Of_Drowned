@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import com.example.notesofdrowned.ui.theme.NotesOfDrownedTheme
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.text.TextStyle
@@ -24,13 +25,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.ripple
 import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.notesofdrowned.database.dbhelperarchmini.DBHelperArchMini
 import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
 import com.example.notesofdrowned.navigation.navigationcontroller.NavigationControllerHost
 import com.example.notesofdrowned.ui.theme.BgNote1
+import com.example.notesofdrowned.ui.theme.BgNoteTransparent
 import com.example.notesofdrowned.ui.theme.TextNote
 
 
@@ -83,13 +87,9 @@ fun MyBottomBar(navController: NavHostController){
             text = "$nameButton",
             style = TextStyle(
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Light,
                 fontFamily = FontFamily.SansSerif,
                 color = TextNote,
                 textAlign = TextAlign.Center,
-                platformStyle = PlatformTextStyle(
-                    includeFontPadding = false
-                )
             ),
         )
     }
@@ -100,15 +100,23 @@ fun MyBottomBar(navController: NavHostController){
     ) {
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceAround){
             Box(Modifier
+                .padding(top=15.dp)
                 .clickable(
-//                interactionSource = remember { MutableInteractionSource() },
-//                indication = null
-            ) {
+                    interactionSource = remember {MutableInteractionSource()},
+                    indication = ripple(color=BgNoteTransparent)
+                ) {
                     navController.navigate("LibraryNotesMinimal")
-            }
-            ){textButtonScreens("1")}
-            Box(){textButtonScreens("2")}
-            Box(){textButtonScreens("3")}
+                }
+            ){textButtonScreens("ARCHIVE")}
+            Box(Modifier
+                .padding(top=15.dp)
+                .clickable(
+                    interactionSource = remember {MutableInteractionSource()},
+                    indication = ripple(color=BgNoteTransparent)
+                ) {
+//                    navController.navigate("LibraryNotesMinimal")
+                }
+            ){textButtonScreens("LIBRARY")}
         }
     }
 }
