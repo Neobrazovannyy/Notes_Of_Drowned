@@ -1,6 +1,7 @@
 package com.example.notesofdrowned.database.writedbarchmini
 
 import android.content.ContentValues
+import android.util.Log
 import com.example.notesofdrowned.database.dbhelperarchmini.DBHelperArchMini
 
 class WorkDBArchMini(private val dbHelper: DBHelperArchMini) {
@@ -86,7 +87,11 @@ class WorkDBArchMini(private val dbHelper: DBHelperArchMini) {
             put(DBHelperArchMini.COLUMN_CHILDREN_COLOR, colorBookmarker.uppercase())
         }
 
-        val id=db.insert(DBHelperArchMini.TABLE_CHILDREN, null, queryInsert)
+        var id = try{
+            db.insertOrThrow(DBHelperArchMini.TABLE_CHILDREN, null, queryInsert)
+        } catch (e: Exception){
+            1
+        }
 
         db.close()
         return id
@@ -137,7 +142,7 @@ class WorkDBArchMini(private val dbHelper: DBHelperArchMini) {
                 parent.${DBHelperArchMini.COLUMN_PARENT_DESCRIPTION},
                 child.${DBHelperArchMini.COLUMN_CHILDREN_COLOR}
             FROM ${DBHelperArchMini.TABLE_PARENT} AS parent
-            INNER JOIN ${DBHelperArchMini.TABLE_CHILDREN} AS child
+            LEFT JOIN ${DBHelperArchMini.TABLE_CHILDREN} AS child
                 ON parent.${DBHelperArchMini.COLUMN_PARENT_FOREIGN_KEY} = child.${DBHelperArchMini.COLUMN_CHILDREN_ID}
             ORDER BY parent.${DBHelperArchMini.COLUMN_PARENT_ID} DESC
         """.trimIndent(), null)
@@ -147,7 +152,7 @@ class WorkDBArchMini(private val dbHelper: DBHelperArchMini) {
             val id = cursor.getLong(cursor.getColumnIndexOrThrow(DBHelperArchMini.COLUMN_PARENT_ID))
             val title = cursor.getString(cursor.getColumnIndexOrThrow(DBHelperArchMini.COLUMN_PARENT_TITLE))
             val description = cursor.getString(cursor.getColumnIndexOrThrow(DBHelperArchMini.COLUMN_PARENT_DESCRIPTION))
-            val colorBookmarker = cursor.getString(cursor.getColumnIndexOrThrow(DBHelperArchMini.COLUMN_CHILDREN_COLOR))
+            val colorBookmarker = cursor.getString(cursor.getColumnIndexOrThrow(DBHelperArchMini.COLUMN_CHILDREN_COLOR)) ?: ""
             listArchiveMini.add(TableArchiveMiniWithColor(id, title, description, colorBookmarker))
         }
 
@@ -211,6 +216,44 @@ class WorkDBArchMini(private val dbHelper: DBHelperArchMini) {
         db.close()
 
         return colorBookmarker
+    }
+
+    /*================ Remove data ================*/
+
+    fun updateBookmarkerByColor(newName: String, newColor: String, colorBookmarker: String): Unit{
+        val dbWrite=dbHelper.writableDatabase
+
+        Log.d("dbMu", "UPDATE: $newName::$newColor <= $colorBookmarker")
+
+        val contentValues = ContentValues().apply {
+            put(DBHelperArchMini.COLUMN_CHILDREN_NAME, newName)
+            put(DBHelperArchMini.COLUMN_CHILDREN_COLOR, newColor.uppercase())
+        }
+
+        dbWrite.update(
+            DBHelperArchMini.TABLE_CHILDREN,
+            contentValues,
+            "${DBHelperArchMini.COLUMN_CHILDREN_COLOR} = ?",
+            arrayOf(colorBookmarker.uppercase()),
+        )
+
+        dbWrite.close()
+    }
+
+    /*================ Remove data ================*/
+
+    fun delColorBookmarkerByColor(colorBookmarker: String): Unit{
+        val dbWrite=dbHelper.writableDatabase
+
+        Log.d("dbMu", "DEL: $colorBookmarker")
+
+        dbWrite.delete(
+            DBHelperArchMini.TABLE_CHILDREN,
+            "${DBHelperArchMini.COLUMN_CHILDREN_COLOR} = ?",
+            arrayOf(colorBookmarker.uppercase()),
+        )
+
+        dbWrite.close()
     }
 
 }

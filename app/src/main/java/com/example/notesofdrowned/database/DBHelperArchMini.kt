@@ -42,7 +42,7 @@ class DBHelperArchMini(context: Context) : SQLiteOpenHelper(context, DATABASE_NA
                 $COLUMN_PARENT_TITLE TEXT NOT NULL UNIQUE,
                 $COLUMN_PARENT_DESCRIPTION TEXT,
                 $COLUMN_PARENT_FOREIGN_KEY INTEGER,
-                FOREIGN KEY ($COLUMN_PARENT_FOREIGN_KEY)  REFERENCES $TABLE_CHILDREN (id)
+                FOREIGN KEY ($COLUMN_PARENT_FOREIGN_KEY) REFERENCES $TABLE_CHILDREN (id) ON DELETE SET NULL
             )
         """)
     }

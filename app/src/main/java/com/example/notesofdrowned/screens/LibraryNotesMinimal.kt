@@ -52,9 +52,9 @@ fun LibraryNotesMinimal(listNoteObj: MutableList<ListNoteObjects>, navController
         val listNotes: List<WorkDBArchMini.TableArchiveMiniWithColor> = workDBArchMini.getAllNodeWithColor()
         listNotes.forEach{ noteArchMini->
             listNoteObj.add(ListNoteObjects.BoxNote(
-                noteArchMini.title,
-                noteArchMini.description,
-                noteArchMini.colorBookmarker
+                titleNote = noteArchMini.title,
+                textNote = noteArchMini.description,
+                colorBookmarker = if(noteArchMini.colorBookmarker!="") noteArchMini.colorBookmarker else "464646"
             ))
         }
     }
