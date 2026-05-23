@@ -8,6 +8,7 @@ import com.example.notesofdrowned.ListNoteObjects
 import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
 import com.example.notesofdrowned.screens.WN.WriteNote
 import com.example.notesofdrowned.screens.LNM.LibraryNotesMinimal
+import com.example.notesofdrowned.screens.editnote.EditNote
 
 @Composable
 fun NavigationControllerHost(navController: NavHostController, listNoteObj: MutableList<ListNoteObjects>, workDBArchMini: WorkDBArchMini) {
@@ -21,6 +22,14 @@ fun NavigationControllerHost(navController: NavHostController, listNoteObj: Muta
         }
         composable("WriteNote") {
             WriteNote(navController, workDBArchMini)
+        }
+        composable("EditNote/{idNote}/{titleNote}/{textNote}/{colorBookmarker}") { backStackEntry->
+            val idNote = backStackEntry.arguments?.getString("idNote") ?: ""
+            val titleNote = backStackEntry.arguments?.getString("titleNote") ?: ""
+            val textNote = backStackEntry.arguments?.getString("textNote") ?: ""
+            val colorBookmarker = backStackEntry.arguments?.getString("colorBookmarker") ?: ""
+
+            EditNote(navController, workDBArchMini, idNote, titleNote, textNote, colorBookmarker)
         }
     }
 

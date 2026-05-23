@@ -195,7 +195,7 @@ class WorkDBArchMini(private val dbHelper: DBHelperArchMini) {
 
     /*================ Gat Data By "ID" ================*/
 
-    fun getColorBookmarker(idBookmarker: Long): String?{
+    fun getColorBookmarkerById(idBookmarker: Long): String?{
         val db = dbHelper.readableDatabase
 
         val cursor=db.query(
@@ -218,12 +218,35 @@ class WorkDBArchMini(private val dbHelper: DBHelperArchMini) {
         return colorBookmarker
     }
 
+    fun getIdBookmarkerByColor(colorBookmarker: String): Long{
+        val db = dbHelper.readableDatabase
+
+        val cursor=db.query(
+            DBHelperArchMini.TABLE_CHILDREN,
+            arrayOf(DBHelperArchMini.COLUMN_CHILDREN_ID),
+            "${DBHelperArchMini.COLUMN_CHILDREN_COLOR} = ?",
+            arrayOf(colorBookmarker),
+            null,
+            null,
+            "${DBHelperArchMini.COLUMN_PARENT_ID} DESC"
+        )
+
+        var idBookmarker: Long = 0
+        if(cursor.moveToFirst()){
+            idBookmarker=cursor.getLong(cursor.getColumnIndexOrThrow(DBHelperArchMini.COLUMN_CHILDREN_ID))
+        }
+        cursor.close()
+        db.close()
+
+        return idBookmarker
+    }
+
     /*================ Remove data ================*/
 
     fun updateBookmarkerByColor(newName: String, newColor: String, colorBookmarker: String): Unit{
         val dbWrite=dbHelper.writableDatabase
 
-        Log.d("dbMu", "UPDATE: $newName::$newColor <= $colorBookmarker")
+        Log.d("dbMu", "updateBookmarkerByColor: $newName::$newColor <= $colorBookmarker")
 
         val contentValues = ContentValues().apply {
             put(DBHelperArchMini.COLUMN_CHILDREN_NAME, newName)
@@ -240,6 +263,27 @@ class WorkDBArchMini(private val dbHelper: DBHelperArchMini) {
         dbWrite.close()
     }
 
+    fun updateNoteById(idNote: Long, titleNote: String, descriptionNote: String, idBookmarker: Long): Unit{
+        val dbWrite=dbHelper.writableDatabase
+
+        Log.d("dbMu", "updateNoteById: $idNote:$titleNote:$descriptionNote:$idBookmarker")
+
+        val contentValues = ContentValues().apply {
+            put(DBHelperArchMini.COLUMN_PARENT_TITLE, titleNote)
+            put(DBHelperArchMini.COLUMN_PARENT_DESCRIPTION, descriptionNote)
+            put(DBHelperArchMini.COLUMN_PARENT_FOREIGN_KEY, idBookmarker)
+        }
+
+        dbWrite.update(
+            DBHelperArchMini.TABLE_PARENT,
+            contentValues,
+            "${DBHelperArchMini.COLUMN_PARENT_ID} = ?",
+            arrayOf(idNote.toString()),
+        )
+
+        dbWrite.close()
+    }
+
     /*================ Remove data ================*/
 
     fun delColorBookmarkerByColor(colorBookmarker: String): Unit{
@@ -251,6 +295,20 @@ class WorkDBArchMini(private val dbHelper: DBHelperArchMini) {
             DBHelperArchMini.TABLE_CHILDREN,
             "${DBHelperArchMini.COLUMN_CHILDREN_COLOR} = ?",
             arrayOf(colorBookmarker.uppercase()),
+        )
+
+        dbWrite.close()
+    }
+
+    fun delNoteById(idNote: Long): Unit{
+        val dbWrite=dbHelper.writableDatabase
+
+        Log.d("dbMu", "delNoteById: $idNote")
+
+        dbWrite.delete(
+            DBHelperArchMini.TABLE_PARENT,
+            "${DBHelperArchMini.COLUMN_PARENT_ID} = ?",
+            arrayOf(idNote.toString()),
         )
 
         dbWrite.close()
