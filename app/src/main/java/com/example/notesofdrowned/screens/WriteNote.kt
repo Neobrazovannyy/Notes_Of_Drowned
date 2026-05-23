@@ -151,7 +151,8 @@ fun WriteNote(navController: NavHostController, workDBArchMini: WorkDBArchMini) 
             Box(modifier = Modifier.fillMaxSize()){
                 Box(modifier = Modifier
                     .fillMaxSize()
-                    .padding(20.dp), contentAlignment = Alignment.BottomEnd){
+                    .padding(20.dp), contentAlignment = Alignment.BottomEnd
+                ){
                     Box(modifier = Modifier
                         .width(60.dp)
                         .height(60.dp)

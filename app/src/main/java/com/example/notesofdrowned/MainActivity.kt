@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import com.example.notesofdrowned.ui.theme.NotesOfDrownedTheme
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.TopAppBar
@@ -40,7 +41,7 @@ import com.example.notesofdrowned.ui.theme.TextNote
 
 sealed class ListNoteObjects{
     object BoxEmpty : ListNoteObjects()
-    data class BoxNote(val titleNote: String, val textNote: String, val colorBookmarker: String) : ListNoteObjects()
+    data class BoxNote(val idNote: Long, val titleNote: String, val textNote: String, val colorBookmarker: String) : ListNoteObjects()
 }
 
 class MainActivity : ComponentActivity() {
@@ -101,21 +102,27 @@ fun MyBottomBar(navController: NavHostController){
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceAround){
             Box(Modifier
                 .padding(top=15.dp)
-                .clickable(
-                    interactionSource = remember {MutableInteractionSource()},
-                    indication = ripple(color=BgNoteTransparent)
-                ) {
-                    navController.navigate("LibraryNotesMinimal")
-                }
+                .combinedClickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(color = BgNoteTransparent),
+                    onClick = {
+                        navController.navigate("LibraryNotesMinimal")
+                    },
+                    onDoubleClick = {
+                        navController.navigate("LibraryNotesMinimal_LoadNotes")
+                    })
             ){textButtonScreens("ARCHIVE")}
             Box(Modifier
                 .padding(top=15.dp)
-                .clickable(
-                    interactionSource = remember {MutableInteractionSource()},
-                    indication = ripple(color=BgNoteTransparent)
-                ) {
-//                    navController.navigate("LibraryNotesMinimal")
-                }
+                .combinedClickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(color = BgNoteTransparent),
+                    onClick = {
+//                        navController.navigate("LibraryNotesMinimal")
+                    },
+                    onDoubleClick = {
+//                        navController.navigate("LibraryNotesMinimal_LoadNotes")
+                    })
             ){textButtonScreens("LIBRARY")}
         }
     }
