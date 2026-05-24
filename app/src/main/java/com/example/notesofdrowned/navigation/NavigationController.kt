@@ -1,6 +1,10 @@
 package com.example.notesofdrowned.navigation.navigationcontroller
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,16 +13,25 @@ import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
 import com.example.notesofdrowned.screens.WN.WriteNote
 import com.example.notesofdrowned.screens.LNM.LibraryNotesMinimal
 import com.example.notesofdrowned.screens.editnote.EditNote
+import com.example.notesofdrowned.screens.librarybook.LibraryBook
 
 @Composable
-fun NavigationControllerHost(navController: NavHostController, listNoteObj: MutableList<ListNoteObjects>, workDBArchMini: WorkDBArchMini) {
+fun NavigationControllerHost(navController: NavHostController, workDBArchMini: WorkDBArchMini) {
+    var isFirstLoadListBookmarker by remember { mutableStateOf<Boolean>(true) }
+
 
     NavHost(navController = navController, startDestination = "LibraryNotesMinimal_LoadNotes") {
         composable("LibraryNotesMinimal_LoadNotes") {
-            LibraryNotesMinimal(listNoteObj, navController, workDBArchMini, true)
+            LibraryNotesMinimal(navController, workDBArchMini, true)
         }
         composable("LibraryNotesMinimal") {
-            LibraryNotesMinimal(listNoteObj, navController, workDBArchMini, false)
+            LibraryNotesMinimal(navController, workDBArchMini, false)
+        }
+        composable("LibraryBook_LoadDB") {
+            LibraryBook(navController, workDBArchMini, true, firstLoad={})
+        }
+        composable("LibraryBook") {
+            LibraryBook(navController, workDBArchMini, isFirstLoadListBookmarker, firstLoad={isFirstLoadListBookmarker=false})
         }
         composable("WriteNote") {
             WriteNote(navController, workDBArchMini)

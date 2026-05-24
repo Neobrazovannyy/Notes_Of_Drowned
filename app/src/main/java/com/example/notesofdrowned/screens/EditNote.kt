@@ -217,7 +217,6 @@ fun EditNote(navController: NavHostController, workDBArchMini: WorkDBArchMini, i
     }
 }
 
-//@Preview(showBackground = true)
 @Composable
 fun WindowDelNote(showThisWindow: MutableState<Boolean>, idNote: String, navController: NavHostController, workDBArchMini: WorkDBArchMini){
     var checkedDell by remember { mutableStateOf(false) }

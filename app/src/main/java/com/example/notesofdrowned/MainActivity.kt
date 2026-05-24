@@ -27,6 +27,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.ripple
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -44,10 +46,14 @@ sealed class ListNoteObjects{
     data class BoxNote(val idNote: Long, val titleNote: String, val textNote: String, val colorBookmarker: String) : ListNoteObjects()
 }
 
+val LocalListNote = compositionLocalOf<MutableList<ListNoteObjects>>{mutableListOf()}
+val LocalListBookmarker = compositionLocalOf<MutableList<WorkDBArchMini.TableColorBookmarker>>{mutableListOf()}
+
 class MainActivity : ComponentActivity() {
     //Called by the system once at startup
     override fun onCreate(savedInstanceState: Bundle?) {
-        var listNoteObj: MutableList<ListNoteObjects> = mutableListOf()
+        var listNote: MutableList<ListNoteObjects> = mutableListOf()
+        var listBookmarker: MutableList<WorkDBArchMini.TableColorBookmarker> = mutableListOf()
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -59,7 +65,12 @@ class MainActivity : ComponentActivity() {
                     bottomBar={MyBottomBar(navController)},
                     modifier = Modifier.fillMaxSize(),
                     content = { paddingValues ->
-                        LoadingDataAndNavigation(Modifier.padding(paddingValues), listNoteObj, navController)
+                        CompositionLocalProvider(
+                            LocalListNote provides listNote,
+                            LocalListBookmarker provides listBookmarker
+                        ){
+                            LoadingDataAndNavigation(Modifier.padding(paddingValues), navController)
+                        }
                     }
                 )
             }
@@ -76,7 +87,7 @@ fun MyTopBar() {
             titleContentColor = TextNote,
             containerColor = BgNote1,
         ),
-        title = { Text("Заголовок") }
+        title = { Text("Notes Of Drowned") }
     )
 }
 
@@ -118,10 +129,10 @@ fun MyBottomBar(navController: NavHostController){
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(color = BgNoteTransparent),
                     onClick = {
-//                        navController.navigate("LibraryNotesMinimal")
+                        navController.navigate("LibraryBook")
                     },
                     onDoubleClick = {
-//                        navController.navigate("LibraryNotesMinimal_LoadNotes")
+                        navController.navigate("LibraryBook_LoadDB")
                     })
             ){textButtonScreens("LIBRARY")}
         }
@@ -129,7 +140,7 @@ fun MyBottomBar(navController: NavHostController){
 }
 
 @Composable
-fun LoadingDataAndNavigation(modifier: Modifier, listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController){
+fun LoadingDataAndNavigation(modifier: Modifier, navController: NavHostController){
     val context = LocalContext.current
     val workDBArchMini = remember {
         val dbHelper= DBHelperArchMini(context)
@@ -137,6 +148,6 @@ fun LoadingDataAndNavigation(modifier: Modifier, listNoteObj: MutableList<ListNo
     }
 
     Box(modifier=modifier){
-        NavigationControllerHost(navController, listNoteObj, workDBArchMini)
+        NavigationControllerHost(navController, workDBArchMini)
     }
 }

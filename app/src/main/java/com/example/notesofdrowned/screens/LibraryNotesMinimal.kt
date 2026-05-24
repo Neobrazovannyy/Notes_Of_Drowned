@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.notesofdrowned.ListNoteObjects
+import com.example.notesofdrowned.LocalListNote
 import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
 import com.example.notesofdrowned.screens.components.InputFieldWithSubscript
 import com.example.notesofdrowned.screens.editnote.EditNote
@@ -61,13 +63,15 @@ import com.example.notesofdrowned.ui.theme.TextWarn
 
 
 @Composable
-fun LibraryNotesMinimal(listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController, workDBArchMini: WorkDBArchMini, isLoadListObjNotes: Boolean) {
-    if(isLoadListObjNotes){
-        listNoteObj.clear()
+fun LibraryNotesMinimal(navController: NavHostController, workDBArchMini: WorkDBArchMini, isLoadListObjNotes: Boolean) {
+    val listNote = LocalListNote.current
 
-        val listNotes: List<WorkDBArchMini.TableArchiveMiniWithColor> = workDBArchMini.getAllNodeWithColor()
-        listNotes.forEach{ noteArchMini->
-            listNoteObj.add(ListNoteObjects.BoxNote(
+    if(isLoadListObjNotes){
+        Log.d("dbMu", "updater(LibraryNotesMinimal)")
+        listNote.clear()
+
+        workDBArchMini.getAllNodeWithColor().forEach{ noteArchMini->
+            listNote.add(ListNoteObjects.BoxNote(
                 idNote = noteArchMini.id,
                 titleNote = noteArchMini.title,
                 textNote = noteArchMini.description,
@@ -76,11 +80,11 @@ fun LibraryNotesMinimal(listNoteObj: MutableList<ListNoteObjects>, navController
         }
     }
 
-    ArchiveNotes(listNoteObj, navController, workDBArchMini)
+    ArchiveNotes(listNote, navController)
 }
 
 @Composable
-fun ArchiveNotes(listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController, workDBArchMini: WorkDBArchMini) {
+fun ArchiveNotes(listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController) {
     /*--- For Logic---*/
     var countNoteInLine: Int=0
     val maxNoteInLine:Int=4
@@ -131,13 +135,7 @@ fun ArchiveNotes(listNoteObj: MutableList<ListNoteObjects>, navController: NavHo
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(color=BgNoteTransparent)
                 ){
-                    Log.d("Navigation", "Button clicked!")
-                    try {
-                        navController.navigate("WriteNote")
-                        Log.d("Navigation", "Navigate called successfully")
-                    } catch (e: Exception) {
-                        Log.e("Navigation", "Error: ${e.message}")
-                    }
+                    navController.navigate("WriteNote")
                 },
                 contentAlignment = Alignment.Center
             )
@@ -331,138 +329,3 @@ fun WindowShowNote(showThisWindow: MutableState<Boolean>, textNoteSelect: Array<
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun WindowEditNote(showThisWindow: MutableState<Boolean>, textNoteSelect: Array<String>, workDBArchMini: WorkDBArchMini){
-//    var textInTitleField = remember {mutableStateOf(textNoteSelect[1])}
-//    var textInDirectionField = remember {mutableStateOf(textNoteSelect[2])}
-//    val fontSizeTitle = 28
-//    val fontSizeDirection = 16
-//    var showWindowSelectBookmarker = remember {mutableStateOf(false)}
-//    var colorBookmarker = remember {mutableStateOf<String>("464646")}
-//
-//
-//    Box(modifier=Modifier
-//        .fillMaxSize()
-//        .background(BgNoteTransparent)
-//        .clickable(
-//            interactionSource = remember { MutableInteractionSource() },
-//            indication = ripple(color = BgNoteTransparent)
-//        ) { showThisWindow.value = false },
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Box(modifier = Modifier
-//            .width(300.dp)
-//            .height(350.dp)
-//            .background(BgNote, RoundedCornerShape(5.dp))
-//            .border(1.dp, BgNoteTransparent, RoundedCornerShape(5.dp))
-//            .clickable(
-//                interactionSource = remember { MutableInteractionSource() },
-//                indication = ripple(color = Color.Transparent)
-//            ){},
-//        ) {
-//            Column(){
-//                Box(modifier = Modifier.fillMaxWidth().height(60.dp))
-//                {
-//                    Row(){
-//                        Box(modifier = Modifier
-//                            .padding(top=15.dp, start = 15.dp, end = 15.dp, bottom = 0.dp)
-//                            .fillMaxHeight()
-//                            .weight(1f)
-//                            .verticalScroll(rememberScrollState()),
-//                        ){
-//                            InputFieldWithSubscript(
-//                                Modifier,
-//                                Alignment.CenterStart,
-//                                textInTitleField,
-//                                fontSizeTitle,
-//                                "Word..."
-//                            )
-//                        }
-//                        Box(modifier=Modifier
-//                            .fillMaxHeight()
-//                            .padding(top=15.dp)
-//                            .width(25.dp)
-//                            .clickable(
-//                                interactionSource = remember { MutableInteractionSource() },
-//                                indication = ripple(color = BgNoteTransparent)
-//                            ) {},
-//                            contentAlignment = Alignment.CenterEnd
-//                        ){
-//                            Box(modifier=Modifier
-//                                .fillMaxHeight()
-//                                .width(10.dp)
-//                                .background(
-//                                    Color(0xFF000000 or ("141414").toLong(16)),
-//                                    RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp)
-//                                )
-//                            )
-//                        }
-//                    }
-//                }
-//
-//                Spacer(modifier=Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 10.dp)
-//                    .drawBehind {
-//                        drawLine(
-//                            color = TextNote1,
-//                            start = Offset(0f, size.height),
-//                            end = Offset(size.width, size.height),
-//                            strokeWidth = 2.dp.toPx()
-//                        )
-//                    }
-//                )
-//
-//                Box(modifier = Modifier
-//                    .padding(start = 15.dp, end = 15.dp, bottom = 15.dp, top = 0.dp)
-//                    .fillMaxWidth()
-//                    .weight(1f)
-//                    .border(2.dp, TextWarn)
-//                    .verticalScroll(rememberScrollState()),
-//                ){
-//                    InputFieldWithSubscript(
-//                        Modifier.heightIn(min=200.dp),
-//                        Alignment.TopStart,
-//                        textInDirectionField,
-//                        fontSizeDirection,
-//                        "Definition, description of the word..."
-//                    )
-//                }
-//
-//                Box(modifier = Modifier
-//                    .height(50.dp)
-//                    .fillMaxWidth()
-//                    .background(BgNote1, RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp))
-//                    .clickable(
-//                        interactionSource = remember { MutableInteractionSource() },
-//                        indication = ripple(color = BgNoteTransparent)
-//                    ) {
-//                        val idBookmarker = workDBArchMini.getIdBookmarkerByColor(colorBookmarker.value)
-//                        workDBArchMini.updateNoteById(
-//                            (textNoteSelect[0]).toLong(),
-//                            textInTitleField.value,
-//                            textInDirectionField.value,
-//                            idBookmarker
-//                            )
-//                    },
-//                    contentAlignment = Alignment.Center,
-//                    ){
-//                    Text(
-//                        text = "EDIT",
-//                        modifier = Modifier.padding(end=5.dp),
-//                        style = TextStyle(
-//                            fontSize = 20.sp,
-//                            fontFamily = FontFamily.SansSerif,
-//                            color = TextNote1,
-//                        ),
-//                    )
-//                }
-//
-//            }
-//        }
-//    }
-//
-//    if(showWindowSelectBookmarker.value){
-//        WindowSelectBookmarker(showWindowSelectBookmarker, colorBookmarker, workDBArchMini)
-//    }
-//}
