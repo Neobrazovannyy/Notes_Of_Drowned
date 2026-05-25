@@ -148,7 +148,7 @@ fun WriteNote(navController: NavHostController, workDBArchMini: WorkDBArchMini, 
                             interactionSource = remember { MutableInteractionSource() },
                             indication = ripple(color = BgNoteTransparent)
                         ) {
-                            if (textInTitleField.value != "" && textInDirectionField.value != "") {
+                            if (textInTitleField.value != "") {
                                 workDBArchMini.insertNoteWithColor(
                                     textInTitleField.value.trim().trimIndent(),
                                     textInDirectionField.value.trim(),

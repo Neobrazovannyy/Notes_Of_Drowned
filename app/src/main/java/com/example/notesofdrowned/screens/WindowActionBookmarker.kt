@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
+import com.example.notesofdrowned.screens.componentsNOD.ComponentsNOD
 import com.example.notesofdrowned.ui.theme.BgNote
 import com.example.notesofdrowned.ui.theme.BgNote1
 import com.example.notesofdrowned.ui.theme.BgNoteTransparent
@@ -139,27 +140,29 @@ fun WindowSelectBookmarker(showWindowForSelectBookmarker: MutableState<Boolean>,
                                             color = TextNote1,
                                         ),
                                     )
-                                    Box(modifier = Modifier
-                                        .width(30.dp)
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = ripple(color = BgNoteTransparent)
-                                        ) {
-                                            selectNameBookmarker=itemDBBookmarker.nameColor
-                                            selectColorBookmarker=itemDBBookmarker.color
-                                            showWindowCorrectOrDell.value = true
-                                        },
-                                        contentAlignment=Alignment.BottomEnd){
-                                        Text(
-                                            text = "\u22EE",
-                                            modifier = Modifier
-                                                .padding(end = 5.dp),
-                                            style = TextStyle(
-                                                fontSize = 20.sp,
-                                                fontFamily = FontFamily.SansSerif,
-                                                color = TextNote1,
-                                            ),
-                                        )
+                                    if(itemDBBookmarker.color != ComponentsNOD.defaultColorBookmarker){
+                                        Box(modifier = Modifier
+                                            .width(30.dp)
+                                            .clickable(
+                                                interactionSource = remember { MutableInteractionSource() },
+                                                indication = ripple(color = BgNoteTransparent)
+                                            ) {
+                                                selectNameBookmarker=itemDBBookmarker.nameColor
+                                                selectColorBookmarker=itemDBBookmarker.color
+                                                showWindowCorrectOrDell.value = true
+                                            },
+                                            contentAlignment=Alignment.BottomEnd){
+                                            Text(
+                                                text = "\u22EE",
+                                                modifier = Modifier
+                                                    .padding(end = 5.dp),
+                                                style = TextStyle(
+                                                    fontSize = 20.sp,
+                                                    fontFamily = FontFamily.SansSerif,
+                                                    color = TextNote1,
+                                                ),
+                                            )
+                                        }
                                     }
                                 }
                             }

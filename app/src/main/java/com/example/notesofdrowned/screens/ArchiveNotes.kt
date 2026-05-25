@@ -47,6 +47,7 @@ import com.example.notesofdrowned.ui.theme.BgNote
 import com.example.notesofdrowned.ui.theme.BgNoteTransparent
 import com.example.notesofdrowned.ui.theme.TextNote
 import com.example.notesofdrowned.ui.theme.TextNote1
+import java.net.URLEncoder
 
 
 @Composable
@@ -91,7 +92,9 @@ fun ArchiveNotes(listNote: MutableList<ListNoteObjects>, navController: NavHostC
 
     //WINDOW with the button for adding a new node
     Box(modifier = Modifier.fillMaxSize()){
-        Box(modifier = Modifier.fillMaxSize().padding(20.dp), contentAlignment = Alignment.BottomEnd){
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp), contentAlignment = Alignment.BottomEnd){
             Box(modifier = Modifier
                 .width(60.dp)
                 .height(60.dp)
@@ -99,9 +102,13 @@ fun ArchiveNotes(listNote: MutableList<ListNoteObjects>, navController: NavHostC
                 .background(Color(0XFF2A2A2B))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(color=BgNoteTransparent)
-                ){
-                    navController.navigate("WriteNote/$isSelectionAllowed/$defaultColorBookmarker")
+                    indication = ripple(color = BgNoteTransparent)
+                ) {
+                    navController.navigate(
+                        "WriteNote?" +
+                                "isSelectionAllowed=${isSelectionAllowed}&" +
+                                "defaultColorBookmarker=${defaultColorBookmarker}"
+                    )
                 },
                 contentAlignment = Alignment.Center
             )
@@ -132,8 +139,12 @@ fun ArchiveNotes(listNote: MutableList<ListNoteObjects>, navController: NavHostC
 @Composable
 fun DrowNotesInRow(lineElement: Array<ListNoteObjects>, showWindowShowNote: MutableState<Boolean>, textNoteSelect: MutableState<Array<String>>, navController: NavHostController){
     /*--- For Design---*/
-    val modifierBoxPadding: Modifier = Modifier.height(70.dp).padding(3.dp)
-    val modifierBoxNotes: Modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(5.dp))
+    val modifierBoxPadding: Modifier = Modifier
+        .height(70.dp)
+        .padding(3.dp)
+    val modifierBoxNotes: Modifier = Modifier
+        .fillMaxSize()
+        .clip(RoundedCornerShape(5.dp))
 
     Row(modifier = Modifier.fillMaxWidth())
     {
@@ -158,7 +169,12 @@ fun DrowNotesInRow(lineElement: Array<ListNoteObjects>, showWindowShowNote: Muta
                                 (textNoteSelect.value)[1]=itemLineNote.titleNote
                                 (textNoteSelect.value)[2]=itemLineNote.textNote
                                 (textNoteSelect.value)[3]=itemLineNote.colorBookmarker
-                                navController.navigate("EditNote/${(textNoteSelect.value)[0]}/${(textNoteSelect.value)[1]}/${(textNoteSelect.value)[2]}/${(textNoteSelect.value)[3]}")
+                                navController.navigate("EditNote?" +
+                                        "idNote=${(textNoteSelect.value)[0]}&" +
+                                        "titleNote=${(textNoteSelect.value)[1]}&" +
+                                        "textNote=${ ((textNoteSelect.value)[2])}&" +
+                                        "colorBookmarker=${(textNoteSelect.value)[3]}"
+                                )
                             }
                         )
                     ){
@@ -176,17 +192,21 @@ fun DrowNotesInRow(lineElement: Array<ListNoteObjects>, showWindowShowNote: Muta
 fun BlockNoteInArchive(titleNote: String, colorBookmarker: String){
     val roundCornerBookmarker=RoundedCornerShape(10.dp)
 
-    Box(modifier = Modifier.fillMaxSize().background(BgNote)) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(BgNote)) {
         Row(verticalAlignment=Alignment.CenterVertically)
         {
             /*---------- UI Text ---------*/
-            Box(modifier = Modifier.padding(5.dp).weight(1f)){
+            Box(modifier = Modifier
+                .padding(5.dp)
+                .weight(1f)){
                 Text(
                     modifier = Modifier.fillMaxSize(),
                     text = "$titleNote",
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Light,
                         fontFamily = FontFamily.SansSerif,
                         color = TextNote,
@@ -199,7 +219,10 @@ fun BlockNoteInArchive(titleNote: String, colorBookmarker: String){
                 .padding(start = 1.dp)
                 .width(3.dp)
                 .height(40.dp)
-                .background(color=Color(0xFF000000 or colorBookmarker.toLong(16)), shape=roundCornerBookmarker),
+                .background(
+                    color = Color(0xFF000000 or colorBookmarker.toLong(16)),
+                    shape = roundCornerBookmarker
+                ),
             ){}
         }
     }
@@ -225,14 +248,16 @@ fun WindowShowNote(showThisWindow: MutableState<Boolean>, textNoteSelect: Array<
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(color = Color.Transparent)
-            ){},
+            ) {},
         ) {
             Column(){
-                Box(modifier = Modifier.fillMaxWidth().height(60.dp))
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp))
                 {
                     Row(){
                         Box(modifier = Modifier
-                            .padding(top=15.dp, start = 15.dp, end = 15.dp, bottom = 0.dp)
+                            .padding(top = 15.dp, start = 15.dp, end = 15.dp, bottom = 0.dp)
                             .fillMaxHeight()
                             .weight(1f)
                             .verticalScroll(rememberScrollState()),
@@ -246,7 +271,7 @@ fun WindowShowNote(showThisWindow: MutableState<Boolean>, textNoteSelect: Array<
                         }
                         Box(modifier=Modifier
                             .fillMaxHeight()
-                            .padding(top=15.dp)
+                            .padding(top = 15.dp)
                             .width(25.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
@@ -266,7 +291,9 @@ fun WindowShowNote(showThisWindow: MutableState<Boolean>, textNoteSelect: Array<
                     }
                 }
 
-                Spacer(modifier=Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 10.dp)
+                Spacer(modifier=Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp, vertical = 10.dp)
                     .drawBehind {
                         drawLine(
                             color = TextNote1,

@@ -56,6 +56,8 @@ class MainActivity : ComponentActivity() {
         var listNote: MutableList<ListNoteObjects> = mutableListOf()
         var listBookmarker: MutableList<WorkDBArchMini.TableColorBookmarker> = mutableListOf()
 
+        Log.d("dbMu", "0_0")
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {

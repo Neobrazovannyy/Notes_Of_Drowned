@@ -47,7 +47,9 @@ fun NavigationControllerHost(navController: NavHostController, workDBArchMini: W
         }
         /*----- Write Note -----*/
         composable(
-            route = "WriteNote/{isSelectionAllowed}/{defaultColorBookmarker}",
+            route = "WriteNote?" +
+                    "isSelectionAllowed={isSelectionAllowed}&" +
+                    "defaultColorBookmarker={defaultColorBookmarker}",
             arguments = listOf(
                 navArgument("isSelectionAllowed") { type = NavType.BoolType },
                 navArgument("defaultColorBookmarker") { type = NavType.StringType }
@@ -59,7 +61,19 @@ fun NavigationControllerHost(navController: NavHostController, workDBArchMini: W
             WriteNote(navController, workDBArchMini, isSelectionAllowed, defaultColorBookmarker)
         }
         /*----- Edit Note -----*/
-        composable("EditNote/{idNote}/{titleNote}/{textNote}/{colorBookmarker}") { backStackEntry->
+        composable(
+            route="EditNote?" +
+                    "idNote={idNote}&" +
+                    "titleNote={titleNote}&" +
+                    "textNote={textNote}&" +
+                    "colorBookmarker={colorBookmarker}",
+            arguments = listOf(
+                navArgument("idNote") { type = NavType.StringType },
+                navArgument("titleNote") { type = NavType.StringType },
+                navArgument("textNote") { type = NavType.StringType },
+                navArgument("colorBookmarker") { type = NavType.StringType }
+            )
+        ) { backStackEntry->
             val idNote = backStackEntry.arguments?.getString("idNote") ?: ""
             val titleNote = backStackEntry.arguments?.getString("titleNote") ?: ""
             val textNote = backStackEntry.arguments?.getString("textNote") ?: ""
