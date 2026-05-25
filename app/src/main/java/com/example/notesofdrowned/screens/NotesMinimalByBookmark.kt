@@ -1,6 +1,5 @@
-package com.example.notesofdrowned.screens.LNM
+package com.example.notesofdrowned.screens.notesminimalbybookmark
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,22 +14,18 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridItemInfo
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,48 +38,42 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.notesofdrowned.ListNoteObjects
 import com.example.notesofdrowned.LocalListNote
-import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
-import com.example.notesofdrowned.screens.components.InputFieldWithSubscript
-import com.example.notesofdrowned.screens.editnote.EditNote
-import com.example.notesofdrowned.screens.windowactionbookmarker.WindowSelectBookmarker
 import com.example.notesofdrowned.ui.theme.BgApp
 import com.example.notesofdrowned.ui.theme.BgNote
-import com.example.notesofdrowned.ui.theme.BgNote1
 import com.example.notesofdrowned.ui.theme.BgNoteTransparent
 import com.example.notesofdrowned.ui.theme.TextNote
 import com.example.notesofdrowned.ui.theme.TextNote1
-import com.example.notesofdrowned.ui.theme.TextWarn
 
 
 @Composable
-fun LibraryNotesMinimal(navController: NavHostController, workDBArchMini: WorkDBArchMini, isLoadListObjNotes: Boolean) {
+fun NotesMinimalByBookmark(navController: NavHostController, selectColorBookmarker: String){
     val listNote = LocalListNote.current
 
-    if(isLoadListObjNotes){
-        Log.d("dbMu", "updater(LibraryNotesMinimal)")
-        listNote.clear()
+    val listNoteByBookmarker: MutableList<ListNoteObjects> = mutableListOf()
 
-        workDBArchMini.getAllNodeWithColor().forEach{ noteArchMini->
-            listNote.add(ListNoteObjects.BoxNote(
-                idNote = noteArchMini.id,
-                titleNote = noteArchMini.title,
-                textNote = noteArchMini.description,
-                colorBookmarker = if(noteArchMini.colorBookmarker!="") noteArchMini.colorBookmarker else "464646"
-            ))
+    listNote.forEach { itemNote ->
+        if(itemNote is ListNoteObjects.BoxNote){
+            if(itemNote.colorBookmarker.equals(selectColorBookmarker, ignoreCase = true)){
+                listNoteByBookmarker.add(ListNoteObjects.BoxNote(
+                    idNote = itemNote.idNote,
+                    titleNote = itemNote.titleNote,
+                    textNote = itemNote.textNote,
+                    colorBookmarker = itemNote.colorBookmarker
+                ))
+            }
         }
     }
 
-    ArchiveNotes(listNote, navController)
+    ArchiveNotes(listNoteByBookmarker, navController)
 }
 
 @Composable
-fun ArchiveNotes(listNoteObj: MutableList<ListNoteObjects>, navController: NavHostController) {
+fun ArchiveNotes(listNote: MutableList<ListNoteObjects>, navController: NavHostController) {
     /*--- For Logic---*/
     var countNoteInLine: Int=0
     val maxNoteInLine:Int=4
@@ -102,7 +91,7 @@ fun ArchiveNotes(listNoteObj: MutableList<ListNoteObjects>, navController: NavHo
         .verticalScroll(rememberScrollState())
     ) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-            for (itemNote in listNoteObj) {
+            for (itemNote in listNote) {
                 if(itemNote is ListNoteObjects.BoxNote){
                     countNoteInLine++
                     lineElement[countNoteInLine - 1] = itemNote
@@ -196,7 +185,7 @@ fun DrowNotesInRow(lineElement: Array<ListNoteObjects>, showWindowShowNote: Muta
                             }
                         )
                     ){
-                      BlockNoteInArchive(itemLineNote.titleNote, itemLineNote.colorBookmarker)
+                        BlockNoteInArchive(itemLineNote.titleNote, itemLineNote.colorBookmarker)
                     }
                 }
             }
@@ -252,14 +241,14 @@ fun WindowShowNote(showThisWindow: MutableState<Boolean>, textNoteSelect: Array<
         contentAlignment = Alignment.Center
     ) {
         Box(modifier = Modifier
-                .width(300.dp)
-                .height(350.dp)
-                .background(BgNote, RoundedCornerShape(5.dp))
-                .border(1.dp, BgNoteTransparent, RoundedCornerShape(5.dp))
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(color = Color.Transparent)
-                ){},
+            .width(300.dp)
+            .height(350.dp)
+            .background(BgNote, RoundedCornerShape(5.dp))
+            .border(1.dp, BgNoteTransparent, RoundedCornerShape(5.dp))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(color = Color.Transparent)
+            ){},
         ) {
             Column(){
                 Box(modifier = Modifier.fillMaxWidth().height(60.dp))

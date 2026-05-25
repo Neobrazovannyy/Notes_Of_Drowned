@@ -3,6 +3,8 @@ package com.example.notesofdrowned.screens.librarybook
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -39,6 +42,7 @@ import com.example.notesofdrowned.LocalListNote
 import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
 import com.example.notesofdrowned.ui.theme.BgApp
 import com.example.notesofdrowned.ui.theme.BgNote
+import com.example.notesofdrowned.ui.theme.BgNoteTransparent
 import com.example.notesofdrowned.ui.theme.TextNote
 
 
@@ -53,11 +57,11 @@ fun LibraryBook(navController: NavHostController, workDBArchMini: WorkDBArchMini
         listBookmarker.addAll(workDBArchMini.getAllColor())
     }
 
-    DrowLibraryBook(listBookmarker)
+    DrowLibraryBook(listBookmarker, navController)
 }
 
 @Composable
-fun DrowLibraryBook(listBookmarker:  MutableList<WorkDBArchMini.TableColorBookmarker>){
+fun DrowLibraryBook(listBookmarker: MutableList<WorkDBArchMini.TableColorBookmarker>, navController: NavHostController){
     Box(modifier=Modifier
         .fillMaxSize()
         .background(BgApp)
@@ -68,9 +72,19 @@ fun DrowLibraryBook(listBookmarker:  MutableList<WorkDBArchMini.TableColorBookma
             listBookmarker.forEach { itemBookmarker->
                 Box(modifier=Modifier
                     .fillMaxWidth()
-                    .heightIn(min=60.dp)
+                    .heightIn(min = 60.dp)
                     .padding(2.dp)
-                    .border(2.dp, Color(0xFF000000 or itemBookmarker.color.toLong(16)), RoundedCornerShape(5.dp))
+                    .border(
+                        2.dp,
+                        Color(0xFF000000 or itemBookmarker.color.toLong(16)),
+                        RoundedCornerShape(5.dp)
+                    )
+                    .combinedClickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(color = BgNoteTransparent),
+                        onClick = {
+                            navController.navigate("NotesMinimalByBookmarker/${itemBookmarker.color}")
+                        })
                 ){
                     Text(
                         text = "${itemBookmarker.nameColor}",
@@ -88,4 +102,3 @@ fun DrowLibraryBook(listBookmarker:  MutableList<WorkDBArchMini.TableColorBookma
         }
     }
 }
-

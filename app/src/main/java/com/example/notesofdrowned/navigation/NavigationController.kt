@@ -8,10 +8,10 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.notesofdrowned.ListNoteObjects
+import com.example.notesofdrowned.screens.notesminimalbybookmark.NotesMinimalByBookmark
 import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
 import com.example.notesofdrowned.screens.WN.WriteNote
-import com.example.notesofdrowned.screens.LNM.LibraryNotesMinimal
+import com.example.notesofdrowned.screens.notesminimal.NotesMinimal
 import com.example.notesofdrowned.screens.editnote.EditNote
 import com.example.notesofdrowned.screens.librarybook.LibraryBook
 
@@ -21,21 +21,30 @@ fun NavigationControllerHost(navController: NavHostController, workDBArchMini: W
 
 
     NavHost(navController = navController, startDestination = "LibraryNotesMinimal_LoadNotes") {
+        /*----- Library Notes Minimal -----*/
         composable("LibraryNotesMinimal_LoadNotes") {
-            LibraryNotesMinimal(navController, workDBArchMini, true)
+            NotesMinimal(navController, workDBArchMini, true)
         }
         composable("LibraryNotesMinimal") {
-            LibraryNotesMinimal(navController, workDBArchMini, false)
+            NotesMinimal(navController, workDBArchMini, false)
         }
+        /*----- Library Notes Minimal By Bookmarker -----*/
+        composable("NotesMinimalByBookmarker/{colorBookmarker}") { backStackEntry ->
+            val colorBookmarker = backStackEntry.arguments?.getString("colorBookmarker") ?: ""
+            NotesMinimalByBookmark(navController, colorBookmarker)
+        }
+        /*----- Library Book -----*/
         composable("LibraryBook_LoadDB") {
             LibraryBook(navController, workDBArchMini, true, firstLoad={})
         }
         composable("LibraryBook") {
             LibraryBook(navController, workDBArchMini, isFirstLoadListBookmarker, firstLoad={isFirstLoadListBookmarker=false})
         }
+        /*----- Write Note -----*/
         composable("WriteNote") {
             WriteNote(navController, workDBArchMini)
         }
+        /*----- Edit Note -----*/
         composable("EditNote/{idNote}/{titleNote}/{textNote}/{colorBookmarker}") { backStackEntry->
             val idNote = backStackEntry.arguments?.getString("idNote") ?: ""
             val titleNote = backStackEntry.arguments?.getString("titleNote") ?: ""
