@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
-import com.example.notesofdrowned.screens.components.InputFieldWithSubscript
+import com.example.notesofdrowned.screens.componentsNOD.InputFieldWithSubscript
 import com.example.notesofdrowned.screens.windowactionbookmarker.WindowSelectBookmarker
 import com.example.notesofdrowned.ui.theme.BgApp
 import com.example.notesofdrowned.ui.theme.BgNote
@@ -62,17 +62,16 @@ import com.example.notesofdrowned.ui.theme.TextWarn
 
 
 @Composable
-fun WriteNote(navController: NavHostController, workDBArchMini: WorkDBArchMini) {
+fun WriteNote(navController: NavHostController, workDBArchMini: WorkDBArchMini, isSelectionAllowed: Boolean, defaultColorBookmarker: String) {
     // Value for DB
     var textInTitleField = remember {mutableStateOf("")}
     var textInDirectionField = remember {mutableStateOf("")}
-    var colorBookmarker = remember {mutableStateOf<String>("464646")}
+    var colorBookmarker = remember {mutableStateOf<String>(defaultColorBookmarker)}
     // Value for style
     val fontSizeTitle = 28
     val fontSizeDirection = 16
     // Flags
     var showWindowForSelectBookmarker = remember {mutableStateOf(false)}
-
 
     Column(modifier=Modifier
         .fillMaxSize()
@@ -102,25 +101,10 @@ fun WriteNote(navController: NavHostController, workDBArchMini: WorkDBArchMini) 
                     )
                 }
                 /*----- Box: UI bookmarker -----*/
-                Box(modifier=Modifier
-                    .fillMaxHeight()
-                    .width(25.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = ripple(color = BgNoteTransparent)
-                    ) {
-                        showWindowForSelectBookmarker.value = true
-                    },
-                    contentAlignment = Alignment.CenterEnd
-                ){
-                    Box(modifier=Modifier
-                        .fillMaxHeight()
-                        .width(15.dp)
-                        .background(
-                            Color(0xFF000000 or colorBookmarker.value.toLong(16)),
-                            RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp)
-                        ),
-                    ){}
+                if(isSelectionAllowed){
+                    BookmarkerSelectionIsAllowed(showWindowForSelectBookmarker, colorBookmarker)
+                } else{
+                    BookmarkerSelectionIsNotAllowed(colorBookmarker)
                 }
             }
         }
@@ -194,5 +178,50 @@ fun WriteNote(navController: NavHostController, workDBArchMini: WorkDBArchMini) 
 
     if(showWindowForSelectBookmarker.value){
         WindowSelectBookmarker(showWindowForSelectBookmarker, colorBookmarker, workDBArchMini)
+    }
+}
+
+@Composable
+fun BookmarkerSelectionIsAllowed(showWindowForSelectBookmarker: MutableState<Boolean>, colorBookmarker: MutableState<String>){
+    Log.d("dbMu", "BookmarkerSelectionIsAllowed: $colorBookmarker")
+    Box(modifier=Modifier
+        .fillMaxHeight()
+        .width(25.dp)
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = ripple(color = BgNoteTransparent)
+        ) {
+            showWindowForSelectBookmarker.value = true
+        },
+        contentAlignment = Alignment.CenterEnd
+    ){
+        Box(modifier=Modifier
+            .fillMaxHeight()
+            .width(15.dp)
+            .background(
+                Color(0xFF000000 or colorBookmarker.value.toLong(16)),
+                RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp)
+            ),
+        )
+    }
+}
+
+
+@Composable
+fun BookmarkerSelectionIsNotAllowed(colorBookmarker: MutableState<String>){
+    Log.d("dbMu", "NOT(BookmarkerSelectionIsAllowed): $colorBookmarker")
+    Box(modifier=Modifier
+        .fillMaxHeight()
+        .width(25.dp),
+        contentAlignment = Alignment.CenterEnd
+    ){
+        Box(modifier=Modifier
+            .fillMaxHeight()
+            .width(15.dp)
+            .background(
+                Color(0xFF000000 or colorBookmarker.value.toLong(16)),
+                RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp)
+            ),
+        )
     }
 }

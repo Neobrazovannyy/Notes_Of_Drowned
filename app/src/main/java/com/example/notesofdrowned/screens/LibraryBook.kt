@@ -1,4 +1,4 @@
-package com.example.notesofdrowned.screens.librarybook
+package com.example.notesofdrowned.screens.bookmarkerslibrary
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -47,7 +47,7 @@ import com.example.notesofdrowned.ui.theme.TextNote
 
 
 @Composable
-fun LibraryBook(navController: NavHostController, workDBArchMini: WorkDBArchMini, isLoadListObjNotes: Boolean, firstLoad: ()-> Unit){
+fun BookmarkersLibrary(navController: NavHostController, workDBArchMini: WorkDBArchMini, isLoadListObjNotes: Boolean, firstLoad: ()-> Unit){
     firstLoad()
     val listBookmarker = LocalListBookmarker.current
 
@@ -57,11 +57,11 @@ fun LibraryBook(navController: NavHostController, workDBArchMini: WorkDBArchMini
         listBookmarker.addAll(workDBArchMini.getAllColor())
     }
 
-    DrowLibraryBook(listBookmarker, navController)
+    DrowBookmarkersLibrary(listBookmarker, navController)
 }
 
 @Composable
-fun DrowLibraryBook(listBookmarker: MutableList<WorkDBArchMini.TableColorBookmarker>, navController: NavHostController){
+fun DrowBookmarkersLibrary(listBookmarker: MutableList<WorkDBArchMini.TableColorBookmarker>, navController: NavHostController){
     Box(modifier=Modifier
         .fillMaxSize()
         .background(BgApp)

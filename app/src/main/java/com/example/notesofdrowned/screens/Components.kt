@@ -1,4 +1,4 @@
-package com.example.notesofdrowned.screens.components
+package com.example.notesofdrowned.screens.componentsNOD
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +15,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
 import com.example.notesofdrowned.ui.theme.TextNote1
+
+
+object ComponentsNOD{
+    val defaultColorBookmarker: String = "464646"
+}
 
 
 @Composable

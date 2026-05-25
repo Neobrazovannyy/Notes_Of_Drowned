@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.notesofdrowned.database.writedbarchmini.WorkDBArchMini
-import com.example.notesofdrowned.screens.components.InputFieldWithSubscript
+import com.example.notesofdrowned.screens.componentsNOD.InputFieldWithSubscript
 import com.example.notesofdrowned.screens.windowactionbookmarker.WindowSelectBookmarker
 import com.example.notesofdrowned.ui.theme.BgApp
 import com.example.notesofdrowned.ui.theme.BgNote
