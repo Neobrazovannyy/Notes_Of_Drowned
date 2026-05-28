@@ -19,6 +19,13 @@ import com.example.notesofdrowned.screens.notesminimal.NotesMinimal
 import com.example.notesofdrowned.screens.editnote.EditNote
 import com.example.notesofdrowned.screens.bookmarkerslibrary.BookmarkersLibrary
 import com.example.notesofdrowned.screens.componentsNOD.ComponentsNOD
+import java.net.URLDecoder
+
+object NavigateData{
+    var editTitleNote: String=""
+    var editTextNote: String=""
+    var editColorBookmarker: String=""
+}
 
 @Composable
 fun NavigationControllerHost(navController: NavHostController, workDBArchMini: WorkDBArchMini) {
@@ -62,24 +69,12 @@ fun NavigationControllerHost(navController: NavHostController, workDBArchMini: W
         }
         /*----- Edit Note -----*/
         composable(
-            route="EditNote?" +
-                    "idNote={idNote}&" +
-                    "titleNote={titleNote}&" +
-                    "textNote={textNote}&" +
-                    "colorBookmarker={colorBookmarker}",
-            arguments = listOf(
-                navArgument("idNote") { type = NavType.StringType },
-                navArgument("titleNote") { type = NavType.StringType },
-                navArgument("textNote") { type = NavType.StringType },
-                navArgument("colorBookmarker") { type = NavType.StringType }
-            )
+            route="EditNote?idNote={idNote}",
+            arguments = listOf( navArgument("idNote") {type=NavType.StringType} )
         ) { backStackEntry->
             val idNote = backStackEntry.arguments?.getString("idNote") ?: ""
-            val titleNote = backStackEntry.arguments?.getString("titleNote") ?: ""
-            val textNote = backStackEntry.arguments?.getString("textNote") ?: ""
-            val colorBookmarker = backStackEntry.arguments?.getString("colorBookmarker") ?: ""
 
-            EditNote(navController, workDBArchMini, idNote, titleNote, textNote, colorBookmarker)
+            EditNote(navController, workDBArchMini, idNote, NavigateData.editTitleNote, NavigateData.editTextNote, NavigateData.editColorBookmarker)
         }
     }
 

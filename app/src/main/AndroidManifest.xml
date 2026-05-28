@@ -14,7 +14,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="ND"
             android:theme="@style/Theme.NotesOfDrowned">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

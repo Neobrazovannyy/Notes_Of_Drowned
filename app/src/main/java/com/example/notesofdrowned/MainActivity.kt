@@ -154,3 +154,12 @@ fun LoadingDataAndNavigation(modifier: Modifier, navController: NavHostControlle
         NavigationControllerHost(navController, workDBArchMini)
     }
 }
+
+
+/*---------- file query navigation architecture ----------*/
+//
+//    TypeLibrary(NotesMinimal || NotesMinimalByBookmark) -->
+//    ArchiveNotes -->
+//    NavigationController -->
+//    (WriteNote || EditNote) -->
+//    TypeDrowBox(...)

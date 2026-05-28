@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.notesofdrowned.ListNoteObjects
+import com.example.notesofdrowned.navigation.navigationcontroller.NavigateData
 import com.example.notesofdrowned.ui.theme.BgApp
 import com.example.notesofdrowned.ui.theme.BgNote
 import com.example.notesofdrowned.ui.theme.BgNoteTransparent
@@ -165,16 +166,10 @@ fun DrowNotesInRow(lineElement: Array<ListNoteObjects>, showWindowShowNote: Muta
                             },
                             onDoubleClick = {
                                 showWindowShowNote.value=false
-                                (textNoteSelect.value)[0]=(itemLineNote.idNote).toString()
-                                (textNoteSelect.value)[1]=itemLineNote.titleNote
-                                (textNoteSelect.value)[2]=itemLineNote.textNote
-                                (textNoteSelect.value)[3]=itemLineNote.colorBookmarker
-                                navController.navigate("EditNote?" +
-                                        "idNote=${(textNoteSelect.value)[0]}&" +
-                                        "titleNote=${(textNoteSelect.value)[1]}&" +
-                                        "textNote=${ ((textNoteSelect.value)[2])}&" +
-                                        "colorBookmarker=${(textNoteSelect.value)[3]}"
-                                )
+                                NavigateData.editTitleNote=itemLineNote.titleNote
+                                NavigateData.editTextNote=itemLineNote.textNote
+                                NavigateData.editColorBookmarker=itemLineNote.colorBookmarker
+                                navController.navigate("EditNote?idNote=${(itemLineNote.idNote)}")
                             }
                         )
                     ){
